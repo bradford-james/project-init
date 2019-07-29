@@ -1,31 +1,37 @@
-import arg from "arg";
+import minimist from "minimist";
 import inquirer from "inquirer";
-import { createProject } from "./main";
+import { projectInit } from "./main";
+import { pushQuestions, setOptsWithAnswers } from "./lib/promptQs";
+import help from "./utils/help";
+import version from "./utils/version";
 
-function parseArguementsIntoOptions(rawArgs) {
-  const args = arg(
-    {
-      "--git": Boolean,
-      "--yes": Boolean,
-      "--install": Boolean,
-      "-g": "--git",
-      "-y": "--yes",
-      "-i": "--install"
-    },
-    {
-      argv: rawArgs.slice(2)
-    }
-  );
+// TODO add name arguement for naming top level
+// TODO Log all inits into lowdb by name and type
+// TODO add remote and set uplink with git
+// TODO other node/npm commands like npm init -y
+
+const parseArgsToOpts = rawArgs => {
+  const args = minimist(rawArgs.slice(2), {
+    boolean: ["git", "yes", "install", "help", "version"],
+    alias: { g: "git", y: "yes", i: "install", h: "help", v: "version" },
+    default: { git: false, yes: false, install: false }
+  });
+
+  if (args._[0] === "help" || args.help || args.h) return { cmd: "help" };
+  if (args._[0] === "version" || args.version || args.v)
+    return { cmd: "version" };
+
   return {
-    skipPrompts: args["--yes"] || false,
-    git: args["--git"] || false,
+    cmd: "template",
     template: args._[0],
-    runInstall: args["--install"] || false
+    git: args.git,
+    skipPrompts: args.yes,
+    runInstall: args.install
   };
-}
+};
 
-async function promptForMissingOptions(options) {
-  const defaultTemplate = "JavaScript";
+const promptQuestions = async options => {
+  const defaultTemplate = "Node";
   if (options.skipPrompts) {
     return {
       ...options,
@@ -34,35 +40,22 @@ async function promptForMissingOptions(options) {
   }
 
   const questions = [];
-  if (!options.template) {
-    questions.push({
-      type: "list",
-      name: "template",
-      message: "Please choose which project template to use",
-      choices: ["JavaScript", "TypeScript"],
-      default: defaultTemplate
-    });
-  }
-
-  if (!options.git) {
-    questions.push({
-      type: "confirm",
-      name: "git",
-      message: "Initialize a git repository?",
-      default: false
-    });
-  }
-
+  pushQuestions();
   const answers = await inquirer.prompt(questions);
-  return {
-    ...options,
-    template: options.template || answers.template,
-    git: options.git || answers.git
-  };
-}
+  return setOptsWithAnswers(answers);
+};
 
 export async function cli(args) {
-  let options = parseArguementsIntoOptions(args);
-  options = await promptForMissingOptions(options);
-  await createProject(options);
+  let options = parseArgsToOpts(args);
+  switch (options.cmd) {
+    case "help":
+      help();
+      break;
+    case "version":
+      version();
+      break;
+    default:
+      let options = await promptQuestions(opts);
+      await projectInit(options);
+  }
 }

@@ -1,4 +1,4 @@
-Project-Init
+# Project-Init
 
 A CLI tool designed to initialize a local workspace based upon type, with options for downloading dependancies and initialize a local/remote git repository.
 
