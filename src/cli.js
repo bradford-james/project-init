@@ -1,7 +1,7 @@
 import minimist from "minimist";
 import inquirer from "inquirer";
 import { projectInit } from "./main";
-import { pushQuestions, setOptsWithAnswers } from "./lib/promptQs";
+import { setQuestions, setOptsWithAnswers } from "./lib/promptQs";
 import help from "./utils/help";
 import version from "./utils/version";
 
@@ -12,6 +12,7 @@ import version from "./utils/version";
 
 const parseArgsToOpts = rawArgs => {
   const args = minimist(rawArgs.slice(2), {
+    string: "dir",
     boolean: ["git", "yes", "install", "help", "version"],
     alias: { g: "git", y: "yes", i: "install", h: "help", v: "version" },
     default: { git: false, yes: false, install: false }
@@ -23,6 +24,7 @@ const parseArgsToOpts = rawArgs => {
 
   return {
     cmd: "template",
+    newDirName: args.dir,
     template: args._[0],
     git: args.git,
     skipPrompts: args.yes,
@@ -31,31 +33,29 @@ const parseArgsToOpts = rawArgs => {
 };
 
 const promptQuestions = async options => {
-  const defaultTemplate = "Node";
-  if (options.skipPrompts) {
-    return {
-      ...options,
-      template: options.template || defaultTemplate
-    };
-  }
-
-  const questions = [];
-  pushQuestions();
+  const questions = setQuestions(options);
   const answers = await inquirer.prompt(questions);
-  return setOptsWithAnswers(answers);
+  return setOptsWithAnswers(options, answers);
 };
 
 export async function cli(args) {
   let options = parseArgsToOpts(args);
+
   switch (options.cmd) {
     case "help":
       help();
       break;
+
     case "version":
       version();
       break;
+
     default:
-      let options = await promptQuestions(opts);
-      await projectInit(options);
+      try {
+        let opts = await promptQuestions(options);
+        await projectInit(opts);
+      } catch (err) {
+        console.log(err);
+      }
   }
 }

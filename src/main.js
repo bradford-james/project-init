@@ -28,7 +28,7 @@ export const projectInit = async options => {
   }
 
   // Run Tasks
-  await tasks.run();
+  tasks();
   console.log("%s Project ready", chalk.green.bold("DONE"));
   return true;
 };
