@@ -4,9 +4,9 @@ const menus = {
 
     version ............ show package version
     help ............... show help menu for a command
-  `
-};
+  `,
+}
 
-export default () => {
-  console.log(menus.main);
-};
+module.exports = () => {
+  console.log(menus.main)
+}

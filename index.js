@@ -1,27 +1,39 @@
-const minimist = require('minimist');
-const error = require('./utils/error');
+const { parseArgsToOpts, promptQuestions } = require('./interface/functions')
+const help = require('./interface/help')
+const version = require('./interface/version')
+const projectInit = require('./project-init/main')
 
-module.exports = () => {
-  const args = minimist(process.argv.slice(2));
+// TODO add name arguement for naming top level
+// TODO Log all inits into lowdb by name and type
+// TODO add remote and set uplink with git
+// TODO other node/npm commands like npm init -y
 
-  let cmd = args._[0] || 'help';
+async function cli(args) {
+  const options = parseArgsToOpts(args)
 
-  if (args.version || args.v) {
-    cmd = 'version';
-  }
-
-  if (args.help || args.h) {
-    cmd = 'help';
-  }
-
-  switch (cmd) {
-    case 'version':
-      require('./cmds/version')(args);
-      break;
+  switch (options.cmd) {
     case 'help':
-      require('./cmds/help')(args);
-      break;
+      help()
+      break
+
+    case 'version':
+      version()
+      break
+
+    case 'template':
+      try {
+        const opts = await promptQuestions(options)
+        await projectInit(opts)
+      } catch (err) {
+        // TODO log error
+        console.log(err)
+      }
+      break
+
     default:
-      error('This is not a valid command', true);
+      // TODO error handling
+      break
   }
-};
+}
+
+exports.cli = cli

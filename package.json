@@ -1,14 +1,38 @@
 {
   "name": "project-init",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "",
   "main": "index.js",
   "bin": {
     "project-init": "bin/project-init.js"
   },
+  "scripts": {
+    "start": "node bin/project-init.js",
+    "test": "jest",
+    "format": "npm run prettier -- --write",
+    "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|json)\"",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "commit": "npm run format && npm run lint && git add . && git cz",
+    "release": "git push --follow-tags",
+    "semantic-release": "semantic-release"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "prepare-commit-msg": "",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "post-commit": "",
+      "pre-push": ""
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
   "dependencies": {
     "chalk": "^2.4.2",
-    "esm": "^3.2.25",
     "execa": "^2.0.3",
     "inquirer": "^6.5.0",
     "listr": "^0.14.3",
@@ -16,13 +40,27 @@
     "ncp": "^2.0.0",
     "pkg-install": "^1.0.0"
   },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@commitlint/prompt": "^8.3.5",
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
+    "@semantic-release/github": "^7.0.3",
+    "@semantic-release/npm": "^7.0.2",
+    "cz-conventional-changelog": "^3.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "husky": "^4.2.1",
+    "prettier": "^1.19.1",
+    "semantic-release": "^17.0.2"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bradford-james/project-init.git"
+    "url": "https://github.com/bradford-james/project-init.git"
   },
   "keywords": [],
   "author": "Bradford James <bradwettig@gmail.com>",
