@@ -1,6 +1,10 @@
 const minimist = require('minimist')
 const inquirer = require('inquirer')
 
+// TODO add proto option (just eslint, npm init, and formatting)
+// TODO add options to add features later
+// TODO add option to specify different services from default (other linters, CI)
+
 const parseArgsToOpts = rawArgs => {
   const args = minimist(rawArgs.slice(2), {
     string: ['name', 'dir'],
@@ -20,8 +24,7 @@ const parseArgsToOpts = rawArgs => {
   })
 
   // eslint-disable-next-line eqeqeq
-  if (args._[0] === 'help' || args.help || args._[0] == '')
-    return { cmd: 'help' }
+  if (args._[0] === 'help' || args.help || args._[0] == '') return { cmd: 'help' }
   if (args._[0] === 'version' || args.version) return { cmd: 'version' }
 
   return {

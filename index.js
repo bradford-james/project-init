@@ -24,6 +24,7 @@ async function cli(args) {
       try {
         const opts = await promptQuestions(options)
         await projectInit(opts)
+        // TODO send options to project mgmt service
       } catch (err) {
         // TODO log error
         console.log(err)

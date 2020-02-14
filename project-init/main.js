@@ -2,24 +2,20 @@ const chalk = require('chalk')
 const fs = require('fs')
 const path = require('path')
 const { promisify } = require('util')
-const tasks = require('./utils/tasks')
+const initTasks = require('./utils/tasks')
 
 const access = promisify(fs.access)
 
 // TODO seperate out console.logs to interface
 
 module.exports = async options => {
-  // Set target and template directories
-  // eslint-disable-next-line no-param-reassign
-  if (!options.targetDirectory) options.targetDirectory = process.cwd()
+  const projectDef = options
 
-  const templateDir = path.resolve(
-    __dirname,
-    '../templates',
-    options.template.toLowerCase()
-  )
-  // eslint-disable-next-line no-param-reassign
-  options.templateDirectory = templateDir
+  // Set target and template directories
+  if (!projectDef.targetDirectory) projectDef.targetDirectory = process.cwd()
+
+  const templateDir = path.resolve(__dirname, 'templates', projectDef.template.toLowerCase())
+  projectDef.templateDirectory = templateDir
 
   // Check access privledges
   try {
@@ -31,7 +27,8 @@ module.exports = async options => {
   }
 
   // Run Tasks
-  tasks()
+  initTasks()
+
   // TODO this belongs in the interface module, w/ the chalk dep.
   console.log('%s Project ready', chalk.green.bold('DONE'))
   return true

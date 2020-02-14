@@ -1,0 +1,37 @@
+{
+  "name": "project_name",
+  "version": "0.0.0-development",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "PROJECT_NAME": "bin/PROJECT_NAME.js"
+  },
+  "scripts": {
+    "start": "node bin/project-init.js",
+    "test": "jest",
+    "format": "npm run prettier -- --write",
+    "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|json)\"",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "commit": "npm run format && npm run lint && git add . && git cz",
+    "release": "git push --follow-tags"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "prepare-commit-msg": "",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "post-commit": "",
+      "pre-push": ""
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "keywords": [],
+  "author": "Bradford James <bradwettig@gmail.com>",
+  "license": "MIT",
+  "readme": "./README.md"
+}

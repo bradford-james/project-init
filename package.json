@@ -14,8 +14,7 @@
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "commit": "npm run format && npm run lint && git add . && git cz",
-    "release": "git push --follow-tags",
-    "semantic-release": "semantic-release"
+    "release": "git push --follow-tags"
   },
   "husky": {
     "hooks": {
@@ -33,6 +32,7 @@
   },
   "dependencies": {
     "chalk": "^2.4.2",
+    "commander": "^4.1.1",
     "execa": "^2.0.3",
     "inquirer": "^6.5.0",
     "listr": "^0.14.3",
