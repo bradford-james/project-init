@@ -8,7 +8,11 @@ const access = promisify(fs.access)
 
 // TODO seperate out console.logs to interface
 
-module.exports = async options => {
+module.exports = instr => {
+  console.log(instr)
+}
+
+const main = async options => {
   const projectDef = options
 
   // Set target and template directories
