@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('..').cli(process.argv)
+const cli = require('../interface/main').cli
