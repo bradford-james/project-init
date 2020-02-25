@@ -11,6 +11,7 @@ jobs:
         with:
           node-version: 12
       - run: npm ci
+      - run: npm i jest
       - run: npm run test:coverage
       - run: npx semantic-release
         env:
