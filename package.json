@@ -1,6 +1,6 @@
 {
   "name": "project-init",
-  "version": "0.0.0-development",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -39,6 +39,7 @@
     "commander": "^4.1.1",
     "execa": "^2.0.3",
     "inquirer": "^6.5.0",
+    "jest": "^25.1.0",
     "listr": "^0.14.3",
     "ncp": "^2.0.0",
     "pkg-install": "^1.0.0"
