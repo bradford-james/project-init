@@ -8,17 +8,21 @@
   },
   "scripts": {
     "start": "node bin/project-init.js",
-    "test": "jest",
+    "dev": "env NODE_ENV=dev node bin/project-init.js",
+    "test": "is-ci \"test:coverage\" \"test\"",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:debug": "node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand  --watch",
     "format": "npm run prettier -- --write",
     "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|json)\"",
     "lint": "eslint .",
-    "lint-fix": "eslint . --fix",
+    "lint:fix": "eslint . --fix",
     "commit": "npm run format && npm run lint && git add . && git cz",
     "release": "git push --follow-tags"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm test",
+      "pre-commit": "",
       "prepare-commit-msg": "",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "post-commit": "",
@@ -36,7 +40,6 @@
     "execa": "^2.0.3",
     "inquirer": "^6.5.0",
     "listr": "^0.14.3",
-    "minimist": "^1.2.0",
     "ncp": "^2.0.0",
     "pkg-install": "^1.0.0"
   },
@@ -55,6 +58,8 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-prettier": "^3.1.2",
     "husky": "^4.2.1",
+    "is-ci-cli": "^2.0.0",
+    "jest-watch-typeahead": "^0.4.2",
     "prettier": "^1.19.1",
     "semantic-release": "^17.0.2"
   },

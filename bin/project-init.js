@@ -1,3 +1,5 @@
 #!/usr/bin/env node
 
-const cli = require('../interface/main').cli
+// eslint-disable-next-line no-unused-expressions
+require('..').cli(process.argv)
+// console.log(process.argv)

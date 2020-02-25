@@ -1,59 +1,67 @@
 const Listr = require('listr')
-const execa = require('execa')
-const { projectInstall } = require('pkg-install')
-const ncp = require('ncp')
-const { promisify } = require('util')
+const {
+  checkDirectories,
+  copyFiles,
+  initGit,
+  makeMainDir,
+  teardown,
+  setDirectories,
+} = require('./functions')
 
-const makeMainDir = async options => {
-  const result = await execa('mkdir', [options.newDirName])
-  if (result.failed) {
-    return Promise.reject(new Error('Failed to create directory'))
-  }
-  return true
-}
+module.exports = async (template, options) => {
+  const { templateDir, stagingDir, targetDir } = setDirectories(template, options)
 
-const copyTemplateFiles = async options => {
-  const copy = promisify(ncp)
-  return copy(options.templateDirectory, options.targetDirectory, {
-    clobber: false,
-  })
-}
-
-const initGit = async options => {
-  const result = await execa('git', ['init'], {
-    cwd: options.targetDirectory,
-  })
-  if (result.failed) {
-    return Promise.reject(new Error('Failed to initialize git'))
-  }
-  return true
-}
-
-module.exports = async options => {
   try {
-    console.log(options)
     const tasks = new Listr([
       {
         title: 'Make Main Directory',
-        task: () => makeMainDir(options),
+        task: () => makeMainDir(options.dirName),
       },
       {
-        title: 'Copy project files',
-        task: () => copyTemplateFiles(options),
+        title: 'Validate Directories',
+        task: () => checkDirectories(templateDir, stagingDir, targetDir),
       },
+      {
+        title: 'Copy project files to staging',
+        task: () => copyFiles(templateDir, stagingDir),
+      },
+      // {
+      //   title: 'Initialize tooling',
+      //   task: () => ,
+      // },
+      // {
+      //   title: 'Set scripts and dependancies',
+      //   task: () => ,
+      // },
       {
         title: 'Initialize git',
-        task: () => initGit(options),
+        task: () => initGit(stagingDir),
         enabled: () => options.git,
       },
       {
-        title: 'Install dependancies',
-        task: () =>
-          projectInstall({
-            cwd: options.targetDirectory,
-          }),
-        skip: () =>
-          !options.runInstall ? 'Pass --install to automatically install dependancies' : undefined,
+        title: 'Copy project files to main directory',
+        task: () => copyFiles(stagingDir, targetDir),
+      },
+      // {
+      //   title: 'Install dependancies',
+      //   task: () =>
+      //     projectInstall({
+      //       cwd: options.targetDirectory,
+      //     }),
+      //   skip: () =>
+      //     !options.runInstall ? 'Pass --install to automatically install dependancies' : undefined,
+      // },
+      // {
+      //   title: 'Run linting/tests',
+      //   task: () => ,
+      // },
+      // {
+      //   title: 'Set up remotes',
+      //   task: () => ,
+      // },
+      {
+        title: 'Teardown operations',
+        task: () => teardown(stagingDir),
       },
     ])
     await tasks.run(options)
