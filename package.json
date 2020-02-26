@@ -76,5 +76,8 @@
   "bugs": {
     "url": "https://github.com/bradford-james/project-init/issues"
   },
-  "homepage": "https://github.com/bradford-james/project-init#readme"
+  "homepage": "https://github.com/bradford-james/project-init#readme",
+  "directories": {
+    "example": "example"
+  }
 }
