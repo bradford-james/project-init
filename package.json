@@ -1,7 +1,7 @@
 {
   "name": "project-init",
   "version": "0.0.0-development",
-  "description": "",
+  "description": "./README.md",
   "main": "index.js",
   "bin": {
     "project-init": "bin/project-init.js"
@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node bin/project-init.js",
     "dev": "env NODE_ENV=dev node bin/project-init.js",
+    "reset": "node src/core/utils/reset.js local",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
@@ -18,7 +19,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "commit": "npm run format && npm run lint && npm run test && git add . && git cz",
-    "release": "git push --follow-tags"
+    "release": "git push --follow-tags",
+    "semantic-release": "semantic-release"
   },
   "husky": {
     "hooks": {
@@ -61,11 +63,11 @@
     "is-ci-cli": "^2.0.0",
     "jest-watch-typeahead": "^0.4.2",
     "prettier": "^1.19.1",
-    "semantic-release": "^17.0.2"
+    "semantic-release": "^17.0.4"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bradford-james/project-init.git"
+    "url": "git+https://github.com/bradford-james/project-init.git"
   },
   "keywords": [],
   "author": "Bradford James <bradwettig@gmail.com>",
@@ -73,6 +75,5 @@
   "bugs": {
     "url": "https://github.com/bradford-james/project-init/issues"
   },
-  "homepage": "https://github.com/bradford-james/project-init#readme",
-  "readme": "./README.md"
+  "homepage": "https://github.com/bradford-james/project-init#readme"
 }

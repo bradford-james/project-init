@@ -58,13 +58,27 @@ const parseArgs = args => {
       console.log(`name: ${name}, dir: ${cmdObj.dirPath}`)
     })
 
-  // ToDo
-  program.command('node-package <name>')
-  // .describe('template: node package, default: full CI/public repo')
+  program
+    .command('node-package <name>')
+    .description('template: node package, default: full CI/public repo')
+    .option('-d, --dir [dirPath]', 'target directory path')
+    .option('-x, --exclude [csv]', "don't include: [install,git]")
+    .action((name, options) => {
+      argsState.template = 'node-package'
+
+      argsState.options.dirName = name || 'prompt'
+      argsState.options.dirPath = options.dir || 'cwd'
+
+      if (options.exclude) {
+        const exclusions = options.exclude.split(',')
+        exclusions.forEach(ex => {
+          argsState.options.exclude.push(ex)
+        })
+      }
+    })
 
   // ToDo
-  program.command('add <feature>')
-  // .describe('add tech to project')
+  program.command('add <feature>').description('add tech to project')
 
   program.parse(args)
 

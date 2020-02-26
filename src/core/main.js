@@ -10,6 +10,7 @@ const projInit = async (template, options) => {
   // ToDo validate options
   // ToDo get cnfg defaults
   await tasks(template, options)
+  process.exit(0)
 }
 
 // exports.getCnfgOptions = getCnfgOptions
