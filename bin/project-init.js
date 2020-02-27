@@ -2,4 +2,3 @@
 
 // eslint-disable-next-line no-unused-expressions
 require('..').cli(process.argv)
-// console.log(process.argv)

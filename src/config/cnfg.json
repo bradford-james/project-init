@@ -1,0 +1,87 @@
+{
+  "templates": {
+    "base": {
+      "languages": ["node", "js", "es6"],
+      "tools": [
+        {
+          "type": "formatter",
+          "default": "prettier"
+        },
+        {
+          "type": "linter",
+          "default": "eslint"
+        },
+        {
+          "type": "logger",
+          "default": "custom"
+        },
+        {
+          "type": "tester",
+          "default": "jest"
+        },
+        {
+          "type": "vesion_control",
+          "default": "git"
+        },
+        {
+          "type": "commit_linter",
+          "default": "commitizen"
+        }
+      ],
+      "tech": []
+    },
+    "node-package": {
+      "languages": ["node", "js", "es6"],
+      "tools": [
+        {
+          "type": "formatter",
+          "default": "prettier"
+        },
+        {
+          "type": "linter",
+          "default": "eslint"
+        },
+        {
+          "type": "logger",
+          "default": "custom"
+        },
+        {
+          "type": "tester",
+          "default": "jest"
+        },
+        {
+          "type": "vesion_control",
+          "default": "git"
+        },
+        {
+          "type": "version_control_repo",
+          "default": "github"
+        },
+        {
+          "type": "commit_linter",
+          "default": "commitizen"
+        },
+        {
+          "type": "ci",
+          "default": "github_actions"
+        },
+        {
+          "type": "package_repo",
+          "default": "npm_js"
+        }
+      ],
+      "tech": []
+    }
+  },
+  "options": {
+    "formatter": ["prettier"],
+    "linter": ["eslint"],
+    "logger": ["custom"],
+    "tester": ["jest"],
+    "vesion_control": ["git"],
+    "commit_linter": ["commitizen"],
+    "version_control_repo": ["github"],
+    "ci": ["github_actions"],
+    "package_repo": ["npm_js"]
+  }
+}
