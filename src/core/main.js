@@ -1,19 +1,23 @@
 const tasks = require('./utils/tasks')
+const { getCnfgDefaults } = require('./utils/functions')
 
-// const getCnfgOptions = template => {}
+const displayCnfgDefaults = template => {
+  console.log(getCnfgDefaults(template))
+}
 
-// const setCnfgOptions = (template, defaults) => {}
+const setCnfgDefaults = (template, defaults) => {}
 
-// const addFeature = options => {}
+const addFeature = options => {}
 
 const projInit = async (template, options) => {
   // ToDo validate options
   // ToDo get cnfg defaults
   await tasks(template, options)
+  // ToDo set output w/ cnfg options
   process.exit(0)
 }
 
-// exports.getCnfgOptions = getCnfgOptions
-// exports.setCnfgOptions = setCnfgOptions
-// exports.addFeature = addFeature
+exports.displayCnfgDefaults = displayCnfgDefaults
+exports.setCnfgDefaults = setCnfgDefaults
+exports.addFeature = addFeature
 exports.projInit = projInit

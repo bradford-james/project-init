@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/bradford-james/project-init/compare/v1.0.0...v1.1.0) (2020-02-27)
+
+
+### Features
+
+* **prompter:** allow for prompter to recover required options ([4f851d8](https://github.com/bradford-james/project-init/commit/4f851d8d2536103967752cc2cd0f46b0d6922411))
+
 # 1.0.0 (2020-02-25)
 
 

@@ -1,9 +1,84 @@
 const inquirer = require('inquirer')
+const commander = require('commander')
+const version = require('./version')
+
+const cliHandling = (args, argsState) => {
+  const program = new commander.Command()
+  program.version(version)
+
+  program
+    .command('base [name]')
+    .description('template: local project, default: linting/testing/formatting')
+    .option('-d, --dir [dirPath]', 'target directory path')
+    .option('-x, --exclude [csv]', "don't include: [install,git]")
+    .option('-i, --includ [csv]', 'includes: [ci]')
+    .option('-m, --manual', 'pick options for each handler', false)
+    .option('-c, --set-cnfg', 'change defualt packages', false)
+    .option('--get-cnfg', 'change defualt packages', false)
+    .action((name, options) => {
+      argsState.template = 'base'
+
+      argsState.options.dirName = name || 'prompt'
+      argsState.options.dirPath = options.dir || 'cwd'
+
+      argsState.options.displayCnfgFlag = options['get-config']
+
+      if (options.exclude) {
+        const exclusions = options.exclude.split(',')
+        exclusions.forEach(ex => {
+          argsState.options.exclude.push(ex)
+        })
+      }
+      if (options.include) {
+        const inclusions = options.include.split(',')
+        inclusions.forEach(inc => {
+          argsState.options.include.push(inc)
+        })
+      }
+    })
+
+  // ToDo
+  program
+    .command('node-cli [name]')
+    .description('template: CLI tool, default: full CI')
+    .option('-d, --dir [dirPath]', 'target directory path')
+    .option('-x, --exclude [csv]', "don't include: 'install', 'git', 'ci'")
+    .option('-l, --local', 'excludes use of public repositories')
+    .option('-t, --tech <dep>', 'includes defined tools: [to be added]')
+    .option('-a, --alternate <alt>', "use alternate implementation: 'lint-otherlinter")
+    .action((name, cmdObj) => {
+      console.log(`name: ${name}, dir: ${cmdObj.dirPath}`)
+    })
+
+  program
+    .command('node-package [name]')
+    .description('template: node package, default: full CI/public repo')
+    .option('-d, --dir [dirPath]', 'target directory path')
+    .option('-x, --exclude [csv]', "don't include: [install,git]")
+    .action((name, options) => {
+      argsState.template = 'node-package'
+
+      argsState.options.dirName = name || 'prompt'
+      argsState.options.dirPath = options.dir || 'cwd'
+
+      if (options.exclude) {
+        const exclusions = options.exclude.split(',')
+        exclusions.forEach(ex => {
+          argsState.options.exclude.push(ex)
+        })
+      }
+    })
+
+  // ToDo
+  program.command('add <feature>').description('add tech to project')
+
+  program.parse(args)
+}
 
 const setQuestions = options => {
   const questions = []
 
-  if (!options.template) {
+  if (!options.template && false) {
     questions.push({
       type: 'list',
       name: 'template',
@@ -12,7 +87,7 @@ const setQuestions = options => {
     })
   }
 
-  if (!options.name) {
+  if (options.dirName === 'prompt') {
     questions.push({
       type: 'input',
       name: 'dirName',
@@ -20,7 +95,7 @@ const setQuestions = options => {
     })
   }
 
-  if (!options.yes) {
+  if (!options.yes && false) {
     if (!options.installDeps) {
       questions.push({
         type: 'confirm',
@@ -30,7 +105,7 @@ const setQuestions = options => {
       })
     }
 
-    if (!options.git) {
+    if (!options.git && false) {
       questions.push({
         type: 'confirm',
         name: 'git',
@@ -39,7 +114,7 @@ const setQuestions = options => {
       })
     }
 
-    if (!options.ci) {
+    if (!options.ci && false) {
       questions.push({
         type: 'confirm',
         name: 'ci',
@@ -48,7 +123,7 @@ const setQuestions = options => {
       })
     }
 
-    if (!options.package) {
+    if (!options.package && false) {
       questions.push({
         type: 'confirm',
         name: 'package',
@@ -74,4 +149,5 @@ async function promptQuestions(options) {
   // TODO validation that all required fields are entered
 }
 
+exports.cliHandling = cliHandling
 exports.promptQuestions = promptQuestions

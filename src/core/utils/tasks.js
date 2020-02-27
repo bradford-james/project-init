@@ -87,7 +87,7 @@ module.exports = async (template, options) => {
         task: () => {
           installDeps(targetDir)
         },
-        skip: () => false,
+        skip: () => true,
       },
       {
         title: 'Run linting/tests',

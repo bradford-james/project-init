@@ -1,5 +1,7 @@
 # VSCode
+/.vscode
 .vscode
+.vscode/*
 
 # Logs
 logs
