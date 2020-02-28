@@ -5,11 +5,13 @@ test('initial', () => {
   expect(parseArgs(['', '', 'base', 'test'])).toMatchInlineSnapshot(`
     Object {
       "options": Object {
-        "cnfg": "",
         "dirName": "test",
         "dirPath": "cwd",
+        "displayCnfgFlag": false,
         "exclude": Array [],
         "include": Array [],
+        "manualFlag": false,
+        "setCnfgFlag": false,
       },
       "template": "base",
     }

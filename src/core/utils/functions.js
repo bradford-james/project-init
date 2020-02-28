@@ -9,14 +9,6 @@ const chalk = require('chalk')
 const access = promisify(fs.access)
 const copy = promisify(ncp)
 
-const getCnfgDefaults = template => {
-  const cnfgFile = path.join(__dirname, '../../config/cnfg.json')
-  const rawdata = fs.readFileSync(cnfgFile)
-  const parsedCnfg = JSON.parse(rawdata)
-
-  return parsedCnfg.templates[template].tools
-}
-
 const setDirectories = (template, options) => {
   const templateDir = path.join(__dirname, '../templates', template)
   const stagingDir = path.join(__dirname, '../staging')
@@ -204,7 +196,6 @@ const setRemotes = async dirPath => {
   })
 }
 
-exports.getCnfgDefaults = getCnfgDefaults
 exports.setDirectories = setDirectories
 exports.checkDirectories = checkDirectories
 exports.copyFiles = copyFiles
