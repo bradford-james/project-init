@@ -20,7 +20,7 @@
           "default": "jest"
         },
         {
-          "type": "vesion_control",
+          "type": "version_control",
           "default": "git"
         },
         {
@@ -50,7 +50,7 @@
           "default": "jest"
         },
         {
-          "type": "vesion_control",
+          "type": "version_control",
           "default": "git"
         },
         {
@@ -78,7 +78,7 @@
     "linter": ["eslint"],
     "logger": ["custom"],
     "tester": ["jest", "mocha"],
-    "vesion_control": ["git", "svn"],
+    "version_control": ["git", "svn"],
     "commit_linter": ["commitizen"],
     "version_control_repo": ["github", "gitlab", "bit_bucket"],
     "ci": ["github_actions", "travis_ci"],

@@ -4,7 +4,6 @@ const ncp = require('ncp')
 const { promisify } = require('util')
 const fs = require('fs')
 const chalk = require('chalk')
-// const pckg = require('../../../package.json')
 
 const access = promisify(fs.access)
 const copy = promisify(ncp)
@@ -18,6 +17,12 @@ const setDirectories = (template, options) => {
       : path.resolve(process.cwd(), options.dirPath, options.dirName)
 
   return { templateDir, stagingDir, targetDir }
+}
+
+const makeMainDir = async dirName => {
+  await fs.mkdir(dirName, { recursive: true }, err => {
+    console.log(err)
+  })
 }
 
 const checkDirectories = async (templateDir, stagingDir, targetDirectory) => {
@@ -44,12 +49,6 @@ const copyFiles = async (templateDir, targetDirectory) => {
   }).catch(err => {
     console.log(err)
     throw new Error('problem with copying template directory')
-  })
-}
-
-const makeMainDir = async dirName => {
-  await fs.mkdir(dirName, { recursive: true }, err => {
-    console.log(err)
   })
 }
 
