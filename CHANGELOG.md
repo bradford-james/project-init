@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/bradford-james/project-init/compare/v1.1.0...v1.2.0) (2020-02-28)
+
+
+### Features
+
+* **prompter:** allow for prompter to recover required options ([28b6e53](https://github.com/bradford-james/project-init/commit/28b6e5379144d5dfa10a0e733208b725fe5af2e8))
+* **set_cnfg:** option to set default tooling for set packages ([162a9e0](https://github.com/bradford-james/project-init/commit/162a9e052cb8b7e3c3e82f9df897f3e937d81caf))
+
 # [1.1.0](https://github.com/bradford-james/project-init/compare/v1.0.0...v1.1.0) (2020-02-27)
 
 
