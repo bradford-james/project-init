@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/bradford-james/project-init/compare/v1.2.0...v1.3.0) (2020-02-28)
+
+
+### Features
+
+* **skip:** tools not included in the templates will be skipped ([e60a515](https://github.com/bradford-james/project-init/commit/e60a515580bf7ff15a54085812631b381ea1cb4a))
+
 # [1.2.0](https://github.com/bradford-james/project-init/compare/v1.1.0...v1.2.0) (2020-02-28)
 
 
