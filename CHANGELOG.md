@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/bradford-james/project-init/compare/v1.3.0...v1.4.0) (2020-03-03)
+
+
+### Features
+
+* **ci init:** cI setup with node packages ([9f28d4a](https://github.com/bradford-james/project-init/commit/9f28d4aff40d56e45ce9ee5d75c96d93b9de434d))
+
 # [1.3.0](https://github.com/bradford-james/project-init/compare/v1.2.0...v1.3.0) (2020-02-28)
 
 
