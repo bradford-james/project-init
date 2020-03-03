@@ -69,12 +69,7 @@ const initTooling = {
     })
   },
   formatter: () => {},
-  linter: () => {
-    // async dirPath => {
-    //   await execa('npx', ['eslint', '--init'], {
-    //     cwd: dirPath,
-    //   })
-  },
+  linter: () => {},
   tests: () => {},
   git: async (dirName, dirPath) => {
     await execa('git', ['init'], {

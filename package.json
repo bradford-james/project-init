@@ -1,14 +1,14 @@
 {
-  "name": "project-init",
+  "name": "proj-init",
   "version": "1.3.0",
   "description": "README.md",
   "main": "index.js",
   "bin": {
-    "project-init": "bin/project-init.js"
+    "proj-init": "bin/proj-init.js"
   },
   "scripts": {
-    "start": "node bin/project-init.js",
-    "dev": "env NODE_ENV=dev node bin/project-init.js",
+    "start": "node bin/proj-init.js",
+    "dev": "env NODE_ENV=dev node bin/proj-init.js",
     "reset": "node src/core/utils/reset.js local",
     "test": "jest",
     "test:coverage": "jest --coverage",
@@ -72,15 +72,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bradford-james/project-init.git"
+    "url": "git+https://github.com/bradford-james/proj-init.git"
   },
   "keywords": [],
   "author": "Bradford James <bradwettig@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bradford-james/project-init/issues"
+    "url": "https://github.com/bradford-james/proj-init/issues"
   },
-  "homepage": "https://github.com/bradford-james/project-init#readme",
+  "homepage": "https://github.com/bradford-james/proj-init#readme",
   "directories": {
     "example": "example"
   }
