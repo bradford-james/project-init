@@ -20,7 +20,8 @@
     "lint:fix": "eslint . --fix",
     "commit": "npm run format && npm run lint && npm run test && git add . && git cz",
     "release": "git push --follow-tags",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "chore": "git pull && npm i && npm t"
   },
   "husky": {
     "hooks": {
@@ -37,8 +38,10 @@
     }
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "chalk": "^2.4.2",
     "commander": "^4.1.1",
+    "dotenv": "^8.2.0",
     "execa": "^2.0.3",
     "inquirer": "^6.5.0",
     "jest": "^25.1.0",

@@ -4,11 +4,12 @@ const ncp = require('ncp')
 const { promisify } = require('util')
 const fs = require('fs')
 const chalk = require('chalk')
+const axios = require('axios')
 
 const access = promisify(fs.access)
 const copy = promisify(ncp)
 
-const setDirectories = (template, options) => {
+const setDirectoryPaths = (template, options) => {
   const templateDir = path.join(__dirname, '../templates', template)
   const stagingDir = path.join(__dirname, '../staging')
   const targetDir =
@@ -19,9 +20,9 @@ const setDirectories = (template, options) => {
   return { templateDir, stagingDir, targetDir }
 }
 
-const makeMainDir = async dirName => {
+const makeDir = async dirName => {
   await fs.mkdir(dirName, { recursive: true }, err => {
-    console.log(err)
+    if (err) console.log(err)
   })
 }
 
@@ -68,102 +69,119 @@ const initTooling = {
     })
   },
   formatter: () => {},
-  linter: async dirPath => {
-    await execa('npx', ['eslint', '--init'], {
+  linter: () => {
+    // async dirPath => {
+    //   await execa('npx', ['eslint', '--init'], {
+    //     cwd: dirPath,
+    //   })
+  },
+  tests: () => {},
+  git: async (dirName, dirPath) => {
+    await execa('git', ['init'], {
+      cwd: dirPath,
+    })
+    await execa('npx', ['gitignore', 'node'], {
+      cwd: dirPath,
+    })
+    await execa('git', ['add', '-A'], {
+      cwd: dirPath,
+    })
+    await execa('git', ['commit', '-m', "'Initial Commit'"], {
       cwd: dirPath,
     })
   },
-  tests: () => {},
+  commit_linter: () => {},
 }
 
-const initGit = async dirPath => {
-  await execa('git', ['init'], {
-    cwd: dirPath,
+const includeTool = (options, tool) => {
+  return !!options.find(el => {
+    return el.type === tool
   })
-  await execa('npx', ['gitignore', 'node'], {
-    cwd: dirPath,
-  })
-  await execa('git', ['add', '-A'], {
-    cwd: dirPath,
-  })
-  await execa('git', ['commit', '-m', "'Initial Commit'"], {
-    cwd: dirPath,
-  })
-  // await execa('git', ['remote', 'add', 'origin', 'GIT_REMOTE'], {
-  //   cwd: dirPath,
-  // })
-  initTooling.npm()
-  // await execa('git', ['push', '-u', 'origin', 'master'], {
-  //   cwd: dirPath,
-  // })
 }
 
-const addScripts = dirName => {
+const addScripts = (dirName, tools) => {
+  const scripts = {}
+  const devDependencies = {}
+  const husky = {}
+  const config = {}
+
+  scripts.start = 'node bin/project-init.js'
+  scripts.dev = 'env NODE_ENV=dev node bin/project-init.js'
+
+  if (includeTool(tools, 'formatter')) {
+    scripts.format = 'npm run prettier -- --write'
+    scripts.prettier = 'prettier --ignore-path .gitignore --write "**/*.+(js|json)"'
+    devDependencies.prettier = '^1.19.1'
+  }
+
+  if (includeTool(tools, 'linter')) {
+    scripts.lint = 'eslint .'
+    scripts['lint:fix'] = 'eslint . --fix'
+    devDependencies.eslint = '^6.8.0'
+    devDependencies['eslint-config-airbnb-base'] = '^14.0.0'
+    devDependencies['eslint-config-prettier'] = '^6.10.0'
+    devDependencies['eslint-plugin-import'] = '^2.20.1'
+    devDependencies['eslint-plugin-prettier'] = '^3.1.2'
+  }
+
+  if (includeTool(tools, 'tester')) {
+    scripts.test = 'jest'
+    scripts['test:coverage'] = 'jest --coverage'
+    scripts['test:watch'] = 'jest --watch'
+    scripts['test:debug'] =
+      'node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand  --watch'
+  }
+
+  if (includeTool(tools, 'version_control')) {
+    scripts.commit = 'npm run format && npm run lint && npm run test && git add . && git cz'
+    husky.hooks = {
+      'pre-commit': '',
+      'prepare-commit-msg': '',
+      'commit-msg': '',
+      'post-commit': '',
+      'pre-push': '',
+    }
+  }
+
+  if (includeTool(tools, 'commit-linter')) {
+    devDependencies.husky = '^4.2.1'
+    devDependencies['@commitlint/cli'] = '^8.3.5'
+    devDependencies['@commitlint/config-conventional'] = '^8.3.4'
+    devDependencies['@commitlint/prompt'] = '^8.3.5'
+    husky.hooks['commit-msg'] = 'commitlint -E HUSKY_GIT_PARAMS'
+  }
+
+  if (includeTool(tools, 'version_control_repo')) {
+    scripts.release = 'git push --follow-tags'
+  }
+
+  if (includeTool(tools, 'ci')) {
+    scripts['semantic-release'] = 'semantic-release'
+    devDependencies['cz-conventional-changelog'] = '^3.1.0'
+    devDependencies['semantic-release'] = '^17.0.2'
+    devDependencies['@semantic-release/changelog'] = '^5.0.0'
+    devDependencies['@semantic-release/git'] = '^9.0.0'
+    devDependencies['@semantic-release/github'] = '^7.0.3'
+    devDependencies['@semantic-release/npm'] = '^7.0.2'
+    config.commitizen = {
+      path: './node_modules/cz-conventional-changelog',
+    }
+  }
+
   const pckg = path.join(__dirname, '../staging/package.json')
   const rawdata = fs.readFileSync(pckg)
   const parsedPckg = JSON.parse(rawdata)
 
   parsedPckg.name = dirName
-
   parsedPckg.bin = {
     [dirName]: `bin/${dirName}.js`,
   }
-
   parsedPckg.description = './README.md'
-
-  parsedPckg.scripts = {
-    start: 'node bin/project-init.js',
-    dev: 'env NODE_ENV=dev node bin/project-init.js',
-    reset: 'node src/core/utils/reset.js local',
-    test: 'jest',
-    'test:coverage': 'jest --coverage',
-    'test:watch': 'jest --watch',
-    'test:debug': 'node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand  --watch',
-    format: 'npm run prettier -- --write',
-    prettier: 'prettier --ignore-path .gitignore --write "**/*.+(js|json)"',
-    lint: 'eslint .',
-    'lint:fix': 'eslint . --fix',
-    commit: 'npm run format && npm run lint && npm run test && git add . && git cz',
-    release: 'git push --follow-tags',
-    'semantic-release': 'semantic-release',
-  }
-
+  parsedPckg.scripts = scripts
   parsedPckg.dependencies = {}
-
-  parsedPckg.devDependencies = {
-    prettier: '^1.19.1',
-    eslint: '^6.8.0',
-    'eslint-config-airbnb-base': '^14.0.0',
-    'eslint-config-prettier': '^6.10.0',
-    'eslint-plugin-import': '^2.20.1',
-    'eslint-plugin-prettier': '^3.1.2',
-    husky: '^4.2.1',
-    '@commitlint/cli': '^8.3.5',
-    '@commitlint/config-conventional': '^8.3.4',
-    '@commitlint/prompt': '^8.3.5',
-    'cz-conventional-changelog': '^3.1.0',
-    'semantic-release': '^17.0.2',
-    '@semantic-release/changelog': '^5.0.0',
-    '@semantic-release/git': '^9.0.0',
-    '@semantic-release/github': '^7.0.3',
-    '@semantic-release/npm': '^7.0.2',
-  }
-
-  parsedPckg.husky = {
-    hooks: {
-      'pre-commit': '',
-      'prepare-commit-msg': '',
-      'commit-msg': 'commitlint -E HUSKY_GIT_PARAMS',
-      'post-commit': '',
-      'pre-push': '',
-    },
-  }
-
-  parsedPckg.config = {
-    commitizen: {
-      path: './node_modules/cz-conventional-changelog',
-    },
-  }
+  parsedPckg.devDependencies = devDependencies
+  parsedPckg.husky = husky
+  parsedPckg.config = config
 
   const setPckg = JSON.stringify(parsedPckg, null, 2)
   fs.writeFileSync(pckg, setPckg)
@@ -181,27 +199,66 @@ const installDeps = async dirPath => {
   })
 }
 
-const setRemotes = async dirPath => {
+const setRemotes = {
+  setGit: async (dirName, dirPath) => {
+    const ghUser = process.env.GITHUB_USER
+    const ghPassword = process.env.GITHUB_PASSWORD
+
+    await axios
+      .post(
+        'https://api.github.com/user/repos',
+        { name: dirName },
+        { auth: { username: ghUser, password: ghPassword } }
+      )
+      .then(response => {
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.log(error.response.data)
+      })
+
+    const gitRemoteEndPoint = `https://github.com/${ghUser}/${dirName}.git`
+
+    await execa('git', ['remote', 'add', 'origin', gitRemoteEndPoint], {
+      cwd: dirPath,
+    })
+
+    initTooling.npm()
+
+    await execa('git', ['push', '-u', 'origin', 'master'], {
+      cwd: dirPath,
+    })
+  },
+}
+
+const finalSetup = {
+  gitCommit: async dirPath => {
+    await execa('npm', ['run', 'commit'], {
+      cwd: dirPath,
+    })
+  },
+
+  ciTrigger: async dirPath => {
+    await execa('npm', ['run', 'release'], {
+      cwd: dirPath,
+    })
+  },
+}
+
+const ciInit = async dirPath => {
   await execa('npx', ['semantic-release-cli', 'setup'], {
-    cwd: dirPath,
-  })
-
-  await execa('npm', ['run', 'commit'], {
-    cwd: dirPath,
-  })
-
-  await execa('npm', ['run', 'release'], {
     cwd: dirPath,
   })
 }
 
-exports.setDirectories = setDirectories
+exports.setDirectoryPaths = setDirectoryPaths
 exports.checkDirectories = checkDirectories
 exports.copyFiles = copyFiles
-exports.makeMainDir = makeMainDir
-exports.initGit = initGit
+exports.makeDir = makeDir
 exports.initTooling = initTooling
 exports.addScripts = addScripts
 exports.setRemotes = setRemotes
 exports.verifySetup = verifySetup
 exports.installDeps = installDeps
+exports.finalSetup = finalSetup
+exports.ciInit = ciInit

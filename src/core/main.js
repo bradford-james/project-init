@@ -47,8 +47,7 @@ const setTooling = async template => {
 
 const projInit = async (template, instructions) => {
   await tasks(template, instructions)
-  // ToDo set output w/ cnfg options
-  process.exit(0)
+  return { template, instructions }
 }
 
 exports.getCnfgDefaults = getCnfgDefaults
