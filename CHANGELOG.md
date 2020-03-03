@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/bradford-james/proj-init/compare/v1.4.0...v1.4.1) (2020-03-03)
+
+
+### Bug Fixes
+
+* **name:** changed package name to avoid naming conflict ([106cb81](https://github.com/bradford-james/proj-init/commit/106cb81c8bf699fc2af23023175ab7accade363b))
+
 # [1.4.0](https://github.com/bradford-james/project-init/compare/v1.3.0...v1.4.0) (2020-03-03)
 
 
