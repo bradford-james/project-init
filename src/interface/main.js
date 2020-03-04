@@ -67,7 +67,17 @@ const validateInput = async input => {
   return input
 }
 
+const validateTools = () => {
+  // if (
+  //   tools.find(tool => {
+  //     return tool.type === 'version_control_repo'
+  //   })
+  // )
+  // promptMissingCreds()
+}
+
 exports.parseArgs = parseArgs
 exports.validateInput = validateInput
 exports.askCnfgDefaults = askCnfgDefaults
 exports.displayCnfgDefaults = displayCnfgDefaults
+exports.validateTools = validateTools

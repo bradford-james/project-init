@@ -45,12 +45,16 @@ const checkDirectories = async (templateDir, stagingDir, targetDirectory) => {
 }
 
 const copyFiles = async (templateDir, targetDirectory) => {
-  await copy(templateDir, targetDirectory, {
-    clobber: false,
-  }).catch(err => {
-    console.log(err)
-    throw new Error('problem with copying template directory')
-  })
+  try {
+    await copy(templateDir, targetDirectory, {
+      clobber: false,
+    })
+  } catch (err) {
+    if (err) {
+      console.log(err)
+      throw new Error('problem with copying template directory')
+    }
+  }
 }
 
 const initTooling = {
@@ -81,14 +85,14 @@ const initTooling = {
     await execa('git', ['add', '-A'], {
       cwd: dirPath,
     })
-    await execa('git', ['commit', '-m', "'Initial Commit'"], {
+    await execa('git', ['commit', '-m', 'Initial Commit'], {
       cwd: dirPath,
     })
   },
   commit_linter: () => {},
 }
 
-const includeTool = (options, tool) => {
+const toolIncluded = (options, tool) => {
   return !!options.find(el => {
     return el.type === tool
   })
@@ -103,13 +107,13 @@ const addScripts = (dirName, tools) => {
   scripts.start = 'node bin/project-init.js'
   scripts.dev = 'env NODE_ENV=dev node bin/project-init.js'
 
-  if (includeTool(tools, 'formatter')) {
+  if (toolIncluded(tools, 'formatter')) {
     scripts.format = 'npm run prettier -- --write'
     scripts.prettier = 'prettier --ignore-path .gitignore --write "**/*.+(js|json)"'
     devDependencies.prettier = '^1.19.1'
   }
 
-  if (includeTool(tools, 'linter')) {
+  if (toolIncluded(tools, 'linter')) {
     scripts.lint = 'eslint .'
     scripts['lint:fix'] = 'eslint . --fix'
     devDependencies.eslint = '^6.8.0'
@@ -119,7 +123,7 @@ const addScripts = (dirName, tools) => {
     devDependencies['eslint-plugin-prettier'] = '^3.1.2'
   }
 
-  if (includeTool(tools, 'tester')) {
+  if (toolIncluded(tools, 'tester')) {
     scripts.test = 'jest'
     scripts['test:coverage'] = 'jest --coverage'
     scripts['test:watch'] = 'jest --watch'
@@ -127,7 +131,7 @@ const addScripts = (dirName, tools) => {
       'node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand  --watch'
   }
 
-  if (includeTool(tools, 'version_control')) {
+  if (toolIncluded(tools, 'version_control')) {
     scripts.commit = 'npm run format && npm run lint && npm run test && git add . && git cz'
     husky.hooks = {
       'pre-commit': '',
@@ -138,7 +142,7 @@ const addScripts = (dirName, tools) => {
     }
   }
 
-  if (includeTool(tools, 'commit-linter')) {
+  if (toolIncluded(tools, 'commit-linter')) {
     devDependencies.husky = '^4.2.1'
     devDependencies['@commitlint/cli'] = '^8.3.5'
     devDependencies['@commitlint/config-conventional'] = '^8.3.4'
@@ -146,11 +150,11 @@ const addScripts = (dirName, tools) => {
     husky.hooks['commit-msg'] = 'commitlint -E HUSKY_GIT_PARAMS'
   }
 
-  if (includeTool(tools, 'version_control_repo')) {
+  if (toolIncluded(tools, 'version_control_repo')) {
     scripts.release = 'git push --follow-tags'
   }
 
-  if (includeTool(tools, 'ci')) {
+  if (toolIncluded(tools, 'ci')) {
     scripts['semantic-release'] = 'semantic-release'
     devDependencies['cz-conventional-changelog'] = '^3.1.0'
     devDependencies['semantic-release'] = '^17.0.2'
@@ -182,12 +186,6 @@ const addScripts = (dirName, tools) => {
   fs.writeFileSync(pckg, setPckg)
 }
 
-const verifySetup = async dirPath => {
-  await execa('npm', ['test'], {
-    cwd: dirPath,
-  })
-}
-
 const installDeps = async dirPath => {
   await execa('npm', ['i'], {
     cwd: dirPath,
@@ -205,9 +203,6 @@ const setRemotes = {
         { name: dirName },
         { auth: { username: ghUser, password: ghPassword } }
       )
-      .then(response => {
-        console.log(response.data)
-      })
       .catch(error => {
         console.log(error.response.data)
       })
@@ -227,23 +222,19 @@ const setRemotes = {
 }
 
 const finalSetup = {
+  verifySetup: async dirPath => {
+    await execa('npm', ['test'], {
+      cwd: dirPath,
+    })
+  },
   gitCommit: async dirPath => {
-    await execa('npm', ['run', 'commit'], {
+    await execa('git', ['add', '-A'], {
+      cwd: dirPath,
+    })
+    await execa('git', ['commit', '-m', 'chore(template): template setup complete'], {
       cwd: dirPath,
     })
   },
-
-  ciTrigger: async dirPath => {
-    await execa('npm', ['run', 'release'], {
-      cwd: dirPath,
-    })
-  },
-}
-
-const ciInit = async dirPath => {
-  await execa('npx', ['semantic-release-cli', 'setup'], {
-    cwd: dirPath,
-  })
 }
 
 exports.setDirectoryPaths = setDirectoryPaths
@@ -253,7 +244,5 @@ exports.makeDir = makeDir
 exports.initTooling = initTooling
 exports.addScripts = addScripts
 exports.setRemotes = setRemotes
-exports.verifySetup = verifySetup
 exports.installDeps = installDeps
 exports.finalSetup = finalSetup
-exports.ciInit = ciInit

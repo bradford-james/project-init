@@ -41,6 +41,8 @@ const cli = async args => {
     const initInstructions = { dirName, dirPath }
     initInstructions.tools = await setTooling(template)
 
+    // await validateTools(initInstructions.tools)
+
     await projInit(template, initInstructions)
     process.exit(0)
   }
