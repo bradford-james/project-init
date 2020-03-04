@@ -1,6 +1,6 @@
 {
   "name": "proj-init",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "README.md",
   "main": "index.js",
   "bin": {

@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/bradford-james/proj-init/compare/v1.4.1...v1.4.2) (2020-03-04)
+
+
+### Bug Fixes
+
+* **mvp:** base functionality restored ([2ee5408](https://github.com/bradford-james/proj-init/commit/2ee540830ab962da28d928893e7714ae2dfe1a1e))
+
 ## [1.4.1](https://github.com/bradford-james/proj-init/compare/v1.4.0...v1.4.1) (2020-03-03)
 
 
