@@ -101,15 +101,6 @@ const initCliProgramDefinition = argsReceiver => {
 const setQuestions = options => {
   const questions = []
 
-  // if (!options.template && false) {
-  //   questions.push({
-  //     type: 'list',
-  //     name: 'template',
-  //     message: 'Choose a project template:',
-  //     choices: ['node-cli-tool', 'node-package'],
-  //   })
-  // }
-
   if (options.dirName === 'prompt') {
     questions.push({
       type: 'input',
@@ -117,43 +108,6 @@ const setQuestions = options => {
       message: 'Name of the new project:',
     })
   }
-
-  // if (!options.yes && false) {
-  //   if (!options.installDeps) {
-  //     questions.push({
-  //       type: 'confirm',
-  //       name: 'installDeps',
-  //       message: 'Install dependencies?',
-  //       default: true,
-  //     })
-  //   }
-
-  //   if (!options.git && false) {
-  //     questions.push({
-  //       type: 'confirm',
-  //       name: 'git',
-  //       message: 'Initialize a git repository?',
-  //       default: true,
-  //     })
-  //   }
-
-  //   if (!options.ci && false) {
-  //     questions.push({
-  //       type: 'confirm',
-  //       name: 'ci',
-  //       message: 'Set up CI?',
-  //       default: false,
-  //     })
-  //   }
-
-  //   if (!options.package && false) {
-  //     questions.push({
-  //       type: 'confirm',
-  //       name: 'package',
-  //       message: 'Is this a package?',
-  //       default: false,
-  //     })
-  //   }
 
   return questions
 }

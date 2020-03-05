@@ -69,7 +69,7 @@ const initTooling = {
     const license = await execa('npx', ['license', licenseType.all, '-o', name.all])
     const filePath = path.join(dirPath, 'LICENSE')
     fs.writeFile(filePath, license.all, err => {
-      console.log(err)
+      if (err) console.log(err)
     })
   },
   formatter: () => {},

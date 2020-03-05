@@ -1,3 +1,4 @@
+const path = require('path')
 const chalk = require('chalk')
 const {
   initCliProgramDefinition,
@@ -67,13 +68,32 @@ const validateInput = async input => {
   return input
 }
 
-const validateTools = () => {
-  // if (
-  //   tools.find(tool => {
-  //     return tool.type === 'version_control_repo'
-  //   })
-  // )
-  // promptMissingCreds()
+const validateTools = async tools => {
+  if (
+    tools.find(tool => {
+      return tool.type === 'ci'
+    }) &&
+    (!process.env.GITHUB_USER || !process.env.GITHUB_PASSWORD)
+  ) {
+    console.log(`
+    If you want to setup a remote version control repository, set your credentials in a ${chalk.yellow(
+      '.env'
+    )} file at the root of your directory
+      root directory: 
+    => ${chalk.cyan(`cd ${path.join(__dirname, '../../')}`)}
+    
+    To setup GitHub access, write in .env file (replace ${chalk.cyan('username')} & ${chalk.cyan(
+      'password'
+    )} with your credentials):
+    ${chalk.cyan(`  GITHUB_USER=username
+      GITHUB_PASSWORD=password`)}
+    
+    Otherwise use the 'base' template to set up a local project
+    => ${chalk.cyan('proj-init base <project_name>')}
+    `)
+    process.exit(0)
+  }
+  return true
 }
 
 exports.parseArgs = parseArgs

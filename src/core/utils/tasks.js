@@ -150,16 +150,13 @@ module.exports = async (template, options) => {
     title: 'Validation & Teardown',
     tasks: new Listr([
       {
-        title: 'run linting/tests',
-        task: () => finalSetup.verifySetup(targetDir),
-        skip: () => true,
+        title: 'delete staging directory',
+        task: () => deleteFolderRecursive(stagingDir),
+        skip: () => false,
       },
       {
-        title: 'teardown operations',
-        task: async () => {
-          await deleteFolderRecursive(stagingDir)
-          await finalSetup.gitCommit(targetDir)
-        },
+        title: 'git commit',
+        task: () => finalSetup.gitCommit(targetDir),
         skip: () => false,
       },
     ]),
@@ -178,13 +175,18 @@ module.exports = async (template, options) => {
     await runTaskGroup(tgImportToDir)
     await runTaskGroup(tgRemoteSetup)
     await runTaskGroup(tgInstallDeps)
-    await runTaskGroup(tgFinal) // runs tests, deletes staging, git commit
-    if (!options.tools.ci)
-      console.log(
-        `\n=> Run ${chalk.cyan(
-          `cd ${options.dirName} && npx semantic-release-cli setup`
-        )} to complete CI setup\n=> Set API keys returned from setup in CI Env. Variables\n`
-      )
+    await runTaskGroup(tgFinal) // deletes staging, git commit
+    if (
+      options.tools.find(tool => {
+        return tool.type === 'version_control_repo'
+      })
+    )
+      console.log(`
+      => Run ${chalk.cyan(
+        `cd ${options.dirName} && npx semantic-release-cli setup`
+      )} to complete CI setup
+      => Set API keys returned from setup in CI Env. Variables
+        `)
     return
   } catch (err) {
     console.log(err)
