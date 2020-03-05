@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/bradford-james/proj-init/compare/v1.5.0...v1.5.1) (2020-03-05)
+
+
+### Bug Fixes
+
+* **jest:** moved jest from dep to dev dep ([7c556a6](https://github.com/bradford-james/proj-init/commit/7c556a678554ef5304cd023c91205697bdeb8076))
+
 # [1.5.0](https://github.com/bradford-james/proj-init/compare/v1.4.2...v1.5.0) (2020-03-05)
 
 
