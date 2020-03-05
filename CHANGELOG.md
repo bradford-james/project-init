@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/bradford-james/proj-init/compare/v1.4.2...v1.5.0) (2020-03-05)
+
+
+### Features
+
+* **auth:** user will be guided to set up auth as env vars at tool root ([f878dff](https://github.com/bradford-james/proj-init/commit/f878dff028e9e4f49a893b8c9496d71585e641e3))
+
 ## [1.4.2](https://github.com/bradford-james/proj-init/compare/v1.4.1...v1.4.2) (2020-03-04)
 
 
