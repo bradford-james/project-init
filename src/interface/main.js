@@ -88,8 +88,8 @@ const validateTools = async tools => {
     ${chalk.cyan(`  GITHUB_USER=username
       GITHUB_PASSWORD=password`)}
     
-    Otherwise use the 'base' template to set up a local project
-    => ${chalk.cyan('proj-init base <project_name>')}
+    Otherwise use the 'node-base' template to set up a local project
+    => ${chalk.cyan('proj-init node-base <project_name>')}
     `)
     process.exit(0)
   }

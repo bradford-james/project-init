@@ -25,10 +25,13 @@ const initCliProgramDefinition = argsReceiver => {
 
   program.on('--help', function() {
     console.log('')
+    console.log(`Use 'proj-init [template] --help' to see options available for each template
+    => proj-init node-package --help
+    `)
   })
 
   program
-    .command('base [name]')
+    .command('node-base [name]')
     .description('template: local project, default: linting/testing/formatting')
     .option('-d, --dir [dirPath]', 'target directory path')
     .option('-x, --exclude [csv]', "don't include: [install,git]")
@@ -37,7 +40,7 @@ const initCliProgramDefinition = argsReceiver => {
     .option('-s, --set-cnfg', 'change defualt packages', false)
     .option('-c, --get-cnfg', 'change defualt packages', false)
     .action((name, options) => {
-      aR.template = 'base'
+      aR.template = 'node-base'
 
       aR.options.dirName = name || 'prompt'
       aR.options.dirPath = options.dir || 'cwd'

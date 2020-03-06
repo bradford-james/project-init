@@ -2,7 +2,7 @@ const { parseArgs } = require('../main')
 // const { validateInput, askCnfgDefaults } = require('../main')
 
 test('initial', () => {
-  expect(parseArgs(['', '', 'base', 'test'])).toMatchInlineSnapshot(`
+  expect(parseArgs(['', '', 'node-base', 'test'])).toMatchInlineSnapshot(`
     Object {
       "options": Object {
         "dirName": "test",
@@ -13,7 +13,7 @@ test('initial', () => {
         "manualFlag": false,
         "setCnfgFlag": false,
       },
-      "template": "base",
+      "template": "node-base",
     }
   `)
 })

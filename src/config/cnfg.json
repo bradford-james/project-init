@@ -1,6 +1,6 @@
 {
   "templates": {
-    "base": {
+    "node-base": {
       "languages": ["node", "js", "es6"],
       "tools": [
         {
