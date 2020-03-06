@@ -23,6 +23,10 @@ const initCliProgramDefinition = argsReceiver => {
   const program = new commander.Command()
   program.version(version)
 
+  program.on('--help', function() {
+    console.log('')
+  })
+
   program
     .command('base [name]')
     .description('template: local project, default: linting/testing/formatting')
