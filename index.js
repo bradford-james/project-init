@@ -1,52 +1,95 @@
+// -----------------
+// |    IMPORTS    |
+// -----------------
+
 require('dotenv').config()
-const {
-  parseArgs,
-  displayCnfgDefaults,
-  askCnfgDefaults,
-  validateInput,
-  validateTools,
-} = require('./src/interface/main')
+const commander = require('commander')
+const version = require('./src/interface/utils/version')
+const { askCnfgDefaults, validateInput, display } = require('./src/interface/main')
 const {
   getCnfgDefaults,
   getCnfgOptions,
   setCnfgDefaults,
-  addFeature,
   setTooling,
   projInit,
 } = require('./src/core/main')
 
+// -----------------
+// |    PROGRAM    |
+// -----------------
+
 const cli = async args => {
-  const { template, options } = parseArgs(args)
+  const program = new commander.Command()
 
-  if (options.displayCnfgFlag === true) {
-    const currentDefaults = await getCnfgDefaults(template)
-    displayCnfgDefaults(currentDefaults)
-    process.exit(0)
-  }
+  program.version(version)
+  program.on('--help', display.mainHelp)
 
-  if (options.setCnfgFlag === true) {
-    const currentDefaults = await getCnfgDefaults(template)
-    const cnfgOptions = await getCnfgOptions(template)
-    const newDefaults = await askCnfgDefaults(cnfgOptions, currentDefaults)
-    setCnfgDefaults(template, newDefaults)
-    process.exit(0)
-  }
+  program
+    .command('node-base [name]')
+    .description('template: local project, default: linting/testing/formatting')
+    .option('-d, --dir [dirPath]', 'target directory path')
+    .option('-x, --exclude [csv]', "don't include: [install,git]")
+    .option('-i, --includ [csv]', 'includes: [ci]')
+    .option('-m, --manual', 'pick options for each handler', false)
+    .option('-s, --set-cnfg', 'change defualt packages', false)
+    .option('-c, --get-cnfg', 'change defualt packages', false)
+    .action(async (name, options) => {
+      const template = 'node-base'
 
-  if (template === 'add') {
-    const validatedOpts = validateInput(options)
-    addFeature(validatedOpts)
-    process.exit(0)
-  } else {
-    const { dirName, dirPath } = await validateInput(options)
+      if (options.getCnfg === true) {
+        const currentDefaults = await getCnfgDefaults(template)
+        display.cnfgDefaults(currentDefaults)
+      } else if (options.setCnfg === true) {
+        const currentDefaults = await getCnfgDefaults(template)
+        const cnfgOptions = await getCnfgOptions(template)
+        const newDefaults = await askCnfgDefaults(cnfgOptions, currentDefaults)
+        setCnfgDefaults(template, newDefaults)
+      } else {
+        let initInstructions = {
+          dirName: name,
+          dirPath: options.dir,
+          tools: await setTooling(template),
+        }
+        initInstructions = await validateInput(initInstructions)
+        await projInit(template, initInstructions)
+      }
+    })
 
-    const initInstructions = { dirName, dirPath }
-    initInstructions.tools = await setTooling(template)
+  program
+    .command('node-package [name]')
+    .description('template: node package, default: full CI/public repo')
+    .option('-d, --dir [dirPath]', 'target directory path')
+    .option('-x, --exclude [csv]', "don't include: [install,git]")
+    .option('-s, --set-cnfg', 'change defualt packages', false)
+    .option('-c, --get-cnfg', 'change defualt packages', false)
+    .action(async (name, options) => {
+      const template = 'node-package'
 
-    await validateTools(initInstructions.tools)
+      if (options.getCnfg === true) {
+        const currentDefaults = await getCnfgDefaults(template)
+        display.cnfgDefaults(currentDefaults)
+      } else if (options.setCnfg === true) {
+        const currentDefaults = await getCnfgDefaults(template)
+        const cnfgOptions = await getCnfgOptions(template)
+        const newDefaults = await askCnfgDefaults(cnfgOptions, currentDefaults)
+        setCnfgDefaults(template, newDefaults)
+      } else {
+        let initInstructions = {
+          dirName: name,
+          dirPath: options.dir,
+          tools: await setTooling(template),
+        }
+        initInstructions = await validateInput(initInstructions)
+        await projInit(template, initInstructions)
+      }
+    })
 
-    await projInit(template, initInstructions)
-    process.exit(0)
-  }
+  // ToDo
+  // program.command('add <feature>').description('add tech to project')
+
+  await program.parse(args)
+
+  // program.help()
 }
 
 exports.cli = cli
