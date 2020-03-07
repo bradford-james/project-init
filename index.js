@@ -4,8 +4,7 @@
 
 require('dotenv').config()
 const commander = require('commander')
-const version = require('./src/interface/utils/version')
-const { askCnfgDefaults, validateInput, display } = require('./src/interface/main')
+const { askCnfgDefaults, validateInput, display, version } = require('./src/interface/main')
 const {
   getCnfgDefaults,
   getCnfgOptions,
@@ -17,6 +16,28 @@ const {
 // -----------------
 // |    PROGRAM    |
 // -----------------
+
+const getCnfg = async template => {
+  const currentDefaults = await getCnfgDefaults(template)
+  display.cnfgDefaults(currentDefaults)
+}
+
+const setCnfg = async template => {
+  const currentDefaults = await getCnfgDefaults(template)
+  const cnfgOptions = await getCnfgOptions(template)
+  const newDefaults = await askCnfgDefaults(cnfgOptions, currentDefaults)
+  setCnfgDefaults(template, newDefaults)
+}
+
+const runInit = async (template, name, options) => {
+  let initInstructions = {
+    dirName: name,
+    dirPath: options.dir,
+    tools: await setTooling(template),
+  }
+  initInstructions = await validateInput(initInstructions)
+  await projInit(template, initInstructions)
+}
 
 const cli = async args => {
   const program = new commander.Command()
@@ -37,21 +58,11 @@ const cli = async args => {
       const template = 'node-base'
 
       if (options.getCnfg === true) {
-        const currentDefaults = await getCnfgDefaults(template)
-        display.cnfgDefaults(currentDefaults)
+        await getCnfg(template)
       } else if (options.setCnfg === true) {
-        const currentDefaults = await getCnfgDefaults(template)
-        const cnfgOptions = await getCnfgOptions(template)
-        const newDefaults = await askCnfgDefaults(cnfgOptions, currentDefaults)
-        setCnfgDefaults(template, newDefaults)
+        await setCnfg(template)
       } else {
-        let initInstructions = {
-          dirName: name,
-          dirPath: options.dir,
-          tools: await setTooling(template),
-        }
-        initInstructions = await validateInput(initInstructions)
-        await projInit(template, initInstructions)
+        await runInit(template, name, options)
       }
     })
 
@@ -66,21 +77,11 @@ const cli = async args => {
       const template = 'node-package'
 
       if (options.getCnfg === true) {
-        const currentDefaults = await getCnfgDefaults(template)
-        display.cnfgDefaults(currentDefaults)
+        await getCnfg(template)
       } else if (options.setCnfg === true) {
-        const currentDefaults = await getCnfgDefaults(template)
-        const cnfgOptions = await getCnfgOptions(template)
-        const newDefaults = await askCnfgDefaults(cnfgOptions, currentDefaults)
-        setCnfgDefaults(template, newDefaults)
+        await setCnfg(template)
       } else {
-        let initInstructions = {
-          dirName: name,
-          dirPath: options.dir,
-          tools: await setTooling(template),
-        }
-        initInstructions = await validateInput(initInstructions)
-        await projInit(template, initInstructions)
+        await runInit(template, name, options)
       }
     })
 

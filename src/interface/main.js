@@ -1,6 +1,7 @@
 const path = require('path')
 const chalk = require('chalk')
-const { promptMissingInput, promptDefaults } = require('./utils/functions')
+const inquirer = require('inquirer')
+const { version } = require('../../package.json')
 
 const display = {
   mainHelp: () =>
@@ -34,6 +35,34 @@ const display = {
   },
 }
 
+const prompt = {
+  cnfgDefaults: async prompts => {
+    const questions = []
+    prompts.forEach(prmt => {
+      const key = Object.keys(prmt)[0]
+      questions.push({
+        type: 'list',
+        name: `${key}`,
+        message: `Choose ${key}:`,
+        choices: prmt[key],
+      })
+    })
+    const answers = await inquirer.prompt(questions)
+    return answers
+  },
+  missingInput: async () => {
+    const questions = []
+    questions.push({
+      type: 'input',
+      name: 'dirName',
+      message: 'Name of the new project:',
+    })
+
+    const answers = await inquirer.prompt(questions)
+    return answers.dirName
+  },
+}
+
 const askCnfgDefaults = async (cnfgOptions, currDefaults) => {
   const defaultPrompts = []
 
@@ -45,7 +74,7 @@ const askCnfgDefaults = async (cnfgOptions, currDefaults) => {
     defaultPrompts.push({ [currDefault.type]: promptOpt })
   })
 
-  const setDefaults = await promptDefaults(defaultPrompts)
+  const setDefaults = await prompt.cnfgDefaults(defaultPrompts)
   return setDefaults
 }
 
@@ -62,12 +91,13 @@ const validateInput = async instr => {
     process.exit(0)
   }
 
-  if (!dirName) dirName = await promptMissingInput(dirName)
+  if (!dirName) dirName = await prompt.missingInput(dirName)
   if (!dirPath) dirPath = 'cwd'
 
   return { dirName, dirPath, tools }
 }
 
+exports.version = `v${version}`
 exports.validateInput = validateInput
 exports.askCnfgDefaults = askCnfgDefaults
 exports.display = display
