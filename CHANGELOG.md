@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/bradford-james/proj-init/compare/v1.5.1...v1.6.0) (2020-03-10)
+
+
+### Features
+
+* **install_skip:** user can skip installing dependancies ([dcc52c3](https://github.com/bradford-james/proj-init/commit/dcc52c38c963fc67b8d480675584788731e164b4))
+
 ## [1.5.1](https://github.com/bradford-james/proj-init/compare/v1.5.0...v1.5.1) (2020-03-05)
 
 
