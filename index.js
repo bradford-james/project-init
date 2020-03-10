@@ -2,16 +2,11 @@
 // |    IMPORTS    |
 // -----------------
 
-require('dotenv').config()
+const path = require('path')
+require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 const commander = require('commander')
-const { askCnfgDefaults, validateInput, display, version } = require('./src/interface/main')
-const {
-  getCnfgDefaults,
-  getCnfgOptions,
-  setCnfgDefaults,
-  setTooling,
-  projInit,
-} = require('./src/core/main')
+const { promptCnfgDefaults, validateInput, display, version } = require('./interface')
+const { getCnfgDefaults, getCnfgOptions, setCnfgDefaults, projInit } = require('./proj_init')
 
 // -----------------
 // |    PROGRAM    |
@@ -25,7 +20,7 @@ const getCnfg = async template => {
 const setCnfg = async template => {
   const currentDefaults = await getCnfgDefaults(template)
   const cnfgOptions = await getCnfgOptions(template)
-  const newDefaults = await askCnfgDefaults(cnfgOptions, currentDefaults)
+  const newDefaults = await promptCnfgDefaults(cnfgOptions, currentDefaults)
   setCnfgDefaults(template, newDefaults)
 }
 
@@ -33,7 +28,7 @@ const runInit = async (template, name, options) => {
   let initInstructions = {
     dirName: name,
     dirPath: options.dir,
-    tools: await setTooling(template),
+    tools: await getCnfgDefaults(template),
   }
   initInstructions = await validateInput(initInstructions)
   await projInit(template, initInstructions)
@@ -49,9 +44,6 @@ const cli = async args => {
     .command('node-base [name]')
     .description('template: local project, default: linting/testing/formatting')
     .option('-d, --dir [dirPath]', 'target directory path')
-    .option('-x, --exclude [csv]', "don't include: [install,git]")
-    .option('-i, --includ [csv]', 'includes: [ci]')
-    .option('-m, --manual', 'pick options for each handler', false)
     .option('-s, --set-cnfg', 'change defualt packages', false)
     .option('-c, --get-cnfg', 'change defualt packages', false)
     .action(async (name, options) => {
@@ -70,7 +62,6 @@ const cli = async args => {
     .command('node-package [name]')
     .description('template: node package, default: full CI/public repo')
     .option('-d, --dir [dirPath]', 'target directory path')
-    .option('-x, --exclude [csv]', "don't include: [install,git]")
     .option('-s, --set-cnfg', 'change defualt packages', false)
     .option('-c, --get-cnfg', 'change defualt packages', false)
     .action(async (name, options) => {
@@ -84,9 +75,6 @@ const cli = async args => {
         await runInit(template, name, options)
       }
     })
-
-  // ToDo
-  // program.command('add <feature>').description('add tech to project')
 
   await program.parse(args)
 

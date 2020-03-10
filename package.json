@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node bin/proj-init.js",
     "dev": "env NODE_ENV=dev node bin/proj-init.js",
-    "reset": "node src/core/utils/reset.js local",
+    "reset": "node proj_init/utils/reset.js local",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",

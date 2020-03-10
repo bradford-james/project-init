@@ -1,6 +1,6 @@
 const Listr = require('listr')
 const chalk = require('chalk')
-const { deleteFolderRecursive } = require('./reset')
+const { deleteFolderRecursive } = require('../utils/reset')
 const {
   checkDirectories,
   copyFiles,
@@ -69,42 +69,27 @@ module.exports = async (template, options) => {
         {
           title: 'formatter',
           task: () => initTooling.formatter(stagingDir),
-          skip: () =>
-            !options.tools.find(element => {
-              return element.type === 'formatter'
-            }),
+          skip: () => !options.tools.formatter,
         },
         {
           title: 'linter',
           task: () => initTooling.linter(stagingDir),
-          skip: () =>
-            !options.tools.find(element => {
-              return element.type === 'linter'
-            }),
+          skip: () => !options.tools.linter,
         },
         {
           title: 'tester',
           task: () => initTooling.tests(stagingDir),
-          skip: () =>
-            !options.tools.find(element => {
-              return element.type === 'tester'
-            }),
+          skip: () => !options.tools.tester,
         },
         {
           title: 'version control',
           task: () => initTooling.git(options.dirName, stagingDir),
-          skip: () =>
-            !options.tools.find(element => {
-              return element.type === 'version_control'
-            }),
+          skip: () => !options.tools.version_control,
         },
         {
           title: 'commit linting',
           task: () => initTooling.commit_linter(stagingDir),
-          skip: () =>
-            !options.tools.find(element => {
-              return element.type === 'commit_linter'
-            }),
+          skip: () => !options.tools.commit_linter,
         },
       ],
       { concurrent: true }
@@ -126,10 +111,7 @@ module.exports = async (template, options) => {
       {
         title: 'version control remote',
         task: () => setRemotes.setGit(options.dirName, targetDir),
-        skip: () =>
-          !options.tools.find(tool => {
-            return tool.type === 'version_control_repo'
-          }),
+        skip: () => !options.tools.version_control_repo,
       },
     ]),
   }
@@ -157,7 +139,7 @@ module.exports = async (template, options) => {
       {
         title: 'git commit',
         task: () => finalSetup.gitCommit(targetDir),
-        skip: () => false,
+        skip: () => !options.tools.version_control,
       },
     ]),
   }
@@ -176,17 +158,14 @@ module.exports = async (template, options) => {
     await runTaskGroup(tgRemoteSetup)
     await runTaskGroup(tgInstallDeps)
     await runTaskGroup(tgFinal) // deletes staging, git commit
-    if (
-      options.tools.find(tool => {
-        return tool.type === 'version_control_repo'
-      })
-    )
+    if (options.tools.version_control_repo) {
       console.log(`
       => Run ${chalk.cyan(
         `cd ${options.dirName} && npx semantic-release-cli setup`
       )} to complete CI setup
       => Set API keys returned from setup in CI Env. Variables
         `)
+    }
     return
   } catch (err) {
     console.log(err)

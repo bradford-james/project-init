@@ -1,7 +1,9 @@
 const path = require('path')
 const chalk = require('chalk')
 const inquirer = require('inquirer')
-const { version } = require('../../package.json')
+const { version } = require('../package.json')
+
+exports.version = `v${version}`
 
 const display = {
   mainHelp: () =>
@@ -9,6 +11,7 @@ const display = {
   Use 'proj-init [template] --help' to see options available for each template
   => ${chalk.cyan('proj-init node-package --help')}
   `),
+
   ciHelp: () =>
     console.log(`
   If you want to setup a remote version control repository, set your credentials in a ${chalk.yellow(
@@ -26,25 +29,22 @@ const display = {
   Otherwise use the 'node-base' template to set up a local project
   => ${chalk.cyan('proj-init node-base <project_name>')}
   `),
+
   cnfgDefaults: defaultOpts => {
-    console.log('')
-    defaultOpts.forEach(opt => {
-      console.log(`    tool: ${chalk.green(opt.type)} => default: ${chalk.green(opt.default)}`)
-    })
-    console.log('')
+    console.log(defaultOpts)
   },
 }
+exports.display = display
 
-const prompt = {
+const _prompt = {
   cnfgDefaults: async prompts => {
     const questions = []
-    prompts.forEach(prmt => {
-      const key = Object.keys(prmt)[0]
+    prompts.forEach(({ tool, choices }) => {
       questions.push({
         type: 'list',
-        name: `${key}`,
-        message: `Choose ${key}:`,
-        choices: prmt[key],
+        name: `${tool}`,
+        message: `Choose ${tool}:`,
+        choices,
       })
     })
     const answers = await inquirer.prompt(questions)
@@ -57,47 +57,37 @@ const prompt = {
       name: 'dirName',
       message: 'Name of the new project:',
     })
-
     const answers = await inquirer.prompt(questions)
     return answers.dirName
   },
 }
 
-const askCnfgDefaults = async (cnfgOptions, currDefaults) => {
-  const defaultPrompts = []
+exports.promptCnfgDefaults = async (cnfgOptions, currDefaults) => {
+  const prompts = []
 
-  currDefaults.forEach(currDefault => {
-    const current = currDefault.default
-    const options = cnfgOptions[currDefault.type]
-
-    const promptOpt = options.map(opt => (current === opt ? `${opt} (current)` : opt))
-    defaultPrompts.push({ [currDefault.type]: promptOpt })
+  Object.entries(currDefaults).forEach(([tool, currentSelection]) => {
+    const options = cnfgOptions[tool]
+    const promptOpts = options.map(opt => (currentSelection === opt ? `${opt} (current)` : opt))
+    prompts.push({ tool, choices: promptOpts })
   })
 
-  const setDefaults = await prompt.cnfgDefaults(defaultPrompts)
+  const setDefaults = await _prompt.cnfgDefaults(prompts)
+  Object.entries(setDefaults).forEach(([tool, selection]) => {
+    setDefaults[tool] = selection.replace(' (current)', '')
+  })
   return setDefaults
 }
 
-const validateInput = async instr => {
+exports.validateInput = async instr => {
   let { dirName, dirPath } = instr
   const { tools } = instr
-  if (
-    tools.find(tool => {
-      return tool.type === 'ci'
-    }) &&
-    (!process.env.GITHUB_USER || !process.env.GITHUB_PASSWORD)
-  ) {
+  if (tools.ci && (!process.env.GITHUB_USER || !process.env.GITHUB_PASSWORD)) {
     display.ciHelp()
     process.exit(0)
   }
 
-  if (!dirName) dirName = await prompt.missingInput(dirName)
+  if (!dirName) dirName = await _prompt.missingInput(dirName)
   if (!dirPath) dirPath = 'cwd'
 
   return { dirName, dirPath, tools }
 }
-
-exports.version = `v${version}`
-exports.validateInput = validateInput
-exports.askCnfgDefaults = askCnfgDefaults
-exports.display = display

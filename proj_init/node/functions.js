@@ -9,9 +9,12 @@ const axios = require('axios')
 const access = promisify(fs.access)
 const copy = promisify(ncp)
 
+const TEMPLATE_DIR = './templates'
+const STAGING_DIR = '../staging'
+
 const setDirectoryPaths = (template, options) => {
-  const templateDir = path.join(__dirname, '../templates', template)
-  const stagingDir = path.join(__dirname, '../staging')
+  const templateDir = path.join(__dirname, TEMPLATE_DIR, template)
+  const stagingDir = path.join(__dirname, STAGING_DIR)
   const targetDir =
     options.dirPath === 'cwd' || options.dirPath === ''
       ? path.join(process.cwd(), options.dirName)
@@ -92,12 +95,6 @@ const initTooling = {
   commit_linter: () => {},
 }
 
-const toolIncluded = (options, tool) => {
-  return !!options.find(el => {
-    return el.type === tool
-  })
-}
-
 const addScripts = (dirName, tools) => {
   const scripts = {}
   const devDependencies = {}
@@ -107,13 +104,13 @@ const addScripts = (dirName, tools) => {
   scripts.start = 'node bin/project-init.js'
   scripts.dev = 'env NODE_ENV=dev node bin/project-init.js'
 
-  if (toolIncluded(tools, 'formatter')) {
+  if (tools.formatter) {
     scripts.format = 'npm run prettier -- --write'
     scripts.prettier = 'prettier --ignore-path .gitignore --write "**/*.+(js|json)"'
     devDependencies.prettier = '^1.19.1'
   }
 
-  if (toolIncluded(tools, 'linter')) {
+  if (tools.linter) {
     scripts.lint = 'eslint .'
     scripts['lint:fix'] = 'eslint . --fix'
     devDependencies.eslint = '^6.8.0'
@@ -123,7 +120,7 @@ const addScripts = (dirName, tools) => {
     devDependencies['eslint-plugin-prettier'] = '^3.1.2'
   }
 
-  if (toolIncluded(tools, 'tester')) {
+  if (tools.tester) {
     scripts.test = 'jest'
     scripts['test:coverage'] = 'jest --coverage'
     scripts['test:watch'] = 'jest --watch'
@@ -131,7 +128,7 @@ const addScripts = (dirName, tools) => {
       'node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand  --watch'
   }
 
-  if (toolIncluded(tools, 'version_control')) {
+  if (tools.version_control) {
     scripts.commit = 'npm run format && npm run lint && npm run test && git add . && git cz'
     husky.hooks = {
       'pre-commit': '',
@@ -142,7 +139,7 @@ const addScripts = (dirName, tools) => {
     }
   }
 
-  if (toolIncluded(tools, 'commit-linter')) {
+  if (tools.commit_linter) {
     devDependencies.husky = '^4.2.1'
     devDependencies['@commitlint/cli'] = '^8.3.5'
     devDependencies['@commitlint/config-conventional'] = '^8.3.4'
@@ -150,11 +147,11 @@ const addScripts = (dirName, tools) => {
     husky.hooks['commit-msg'] = 'commitlint -E HUSKY_GIT_PARAMS'
   }
 
-  if (toolIncluded(tools, 'version_control_repo')) {
+  if (tools.version_control_repo) {
     scripts.release = 'git push --follow-tags'
   }
 
-  if (toolIncluded(tools, 'ci')) {
+  if (tools.ci) {
     scripts['semantic-release'] = 'semantic-release'
     devDependencies['cz-conventional-changelog'] = '^3.1.0'
     devDependencies['semantic-release'] = '^17.0.2'
@@ -167,7 +164,7 @@ const addScripts = (dirName, tools) => {
     }
   }
 
-  const pckg = path.join(__dirname, '../staging/package.json')
+  const pckg = path.join(__dirname, STAGING_DIR, 'package.json')
   const rawdata = fs.readFileSync(pckg)
   const parsedPckg = JSON.parse(rawdata)
 

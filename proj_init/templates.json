@@ -1,0 +1,42 @@
+{
+  "templates": {
+    "node-base": {
+      "type": "node",
+      "languages": ["node", "js", "es6"],
+      "tool_defaults": {
+        "formatter": "prettier",
+        "linter": "eslint",
+        "logger": "custom",
+        "tester": "jest",
+        "version_control": "git",
+        "commit_linter": "commitizen"
+      }
+    },
+    "node-package": {
+      "type": "node",
+      "languages": ["node", "js", "es6"],
+      "tool_defaults": {
+        "formatter": "prettier",
+        "linter": "eslint",
+        "logger": "custom",
+        "tester": "jest",
+        "version_control": "git",
+        "commit_linter": "commitizen",
+        "version_control_repo": "github",
+        "ci": "github_actions",
+        "package_repo": "npm_js"
+      }
+    }
+  },
+  "options": {
+    "formatter": ["prettier"],
+    "linter": ["eslint"],
+    "logger": ["custom"],
+    "tester": ["jest", "mocha"],
+    "version_control": ["git", "svn"],
+    "commit_linter": ["commitizen"],
+    "version_control_repo": ["github", "gitlab", "bit_bucket"],
+    "ci": ["github_actions", "travis_ci"],
+    "package_repo": ["npm_js"]
+  }
+}
