@@ -124,7 +124,7 @@ module.exports = async (template, options) => {
         task: async () => {
           await installDeps(targetDir)
         },
-        skip: () => false,
+        skip: () => options.noInstall,
       },
     ]),
   }

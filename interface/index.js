@@ -80,7 +80,7 @@ exports.promptCnfgDefaults = async (cnfgOptions, currDefaults) => {
 
 exports.validateInput = async instr => {
   let { dirName, dirPath } = instr
-  const { tools } = instr
+  const { noInstall, tools } = instr
   if (tools.ci && (!process.env.GITHUB_USER || !process.env.GITHUB_PASSWORD)) {
     display.ciHelp()
     process.exit(0)
@@ -89,5 +89,5 @@ exports.validateInput = async instr => {
   if (!dirName) dirName = await _prompt.missingInput(dirName)
   if (!dirPath) dirPath = 'cwd'
 
-  return { dirName, dirPath, tools }
+  return { dirName, dirPath, noInstall, tools }
 }

@@ -28,6 +28,7 @@ const runInit = async (template, name, options) => {
   let initInstructions = {
     dirName: name,
     dirPath: options.dir,
+    noInstall: options.notInstall,
     tools: await getCnfgDefaults(template),
   }
   initInstructions = await validateInput(initInstructions)
@@ -44,6 +45,7 @@ const cli = async args => {
     .command('node-base [name]')
     .description('template: local project, default: linting/testing/formatting')
     .option('-d, --dir [dirPath]', 'target directory path')
+    .option('-n, --not-install', "don't install dependancies", false)
     .option('-s, --set-cnfg', 'change defualt packages', false)
     .option('-c, --get-cnfg', 'change defualt packages', false)
     .action(async (name, options) => {
@@ -62,6 +64,7 @@ const cli = async args => {
     .command('node-package [name]')
     .description('template: node package, default: full CI/public repo')
     .option('-d, --dir [dirPath]', 'target directory path')
+    .option('-n, --not-install', "don't install dependancies", false)
     .option('-s, --set-cnfg', 'change defualt packages', false)
     .option('-c, --get-cnfg', 'change defualt packages', false)
     .action(async (name, options) => {
