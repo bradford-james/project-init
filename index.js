@@ -4,6 +4,7 @@
 
 const path = require('path')
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
+
 const commander = require('commander')
 const { promptCnfgDefaults, validateInput, display, version } = require('./interface')
 const { getCnfgDefaults, getCnfgOptions, setCnfgDefaults, projInit } = require('./proj_init')
@@ -33,6 +34,7 @@ const runInit = async (template, name, options) => {
   }
   initInstructions = await validateInput(initInstructions)
   await projInit(template, initInstructions)
+  if (initInstructions.tools.ci) display.ciSetup(initInstructions.dirName)
 }
 
 const cli = async args => {

@@ -26,9 +26,21 @@ const display = {
   ${chalk.cyan(`  GITHUB_USER=username
     GITHUB_PASSWORD=password`)}
   
-  Otherwise use the 'node-base' template to set up a local project
+  Another option is to pass the env variables with the script:
+  => ${chalk.cyan(
+    'GITHUB_USER=username GITHUB_PASSWORD=password proj-init node-package <project_name>'
+  )}
+
+  Otherwise use the 'node-base' template to set up a local project:
   => ${chalk.cyan('proj-init node-base <project_name>')}
   `),
+
+  ciSetup: dirName => {
+    console.log(`
+    => Run ${chalk.cyan(`cd ${dirName} && npx semantic-release-cli setup`)} to complete CI setup
+    => Set API keys returned from setup in CI Env. Variables
+      `)
+  },
 
   cnfgDefaults: defaultOpts => {
     console.log(defaultOpts)

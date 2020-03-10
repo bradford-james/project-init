@@ -158,14 +158,6 @@ module.exports = async (template, options) => {
     await runTaskGroup(tgRemoteSetup)
     await runTaskGroup(tgInstallDeps)
     await runTaskGroup(tgFinal) // deletes staging, git commit
-    if (options.tools.version_control_repo) {
-      console.log(`
-      => Run ${chalk.cyan(
-        `cd ${options.dirName} && npx semantic-release-cli setup`
-      )} to complete CI setup
-      => Set API keys returned from setup in CI Env. Variables
-        `)
-    }
     return
   } catch (err) {
     console.log(err)
