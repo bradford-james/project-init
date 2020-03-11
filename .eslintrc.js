@@ -8,5 +8,6 @@ module.exports = {
     'no-underscore-dangle': 0,
     'no-plusplus': 0,
     'no-param-reassign': 0,
+    'prefer-const': 0,
   },
 }

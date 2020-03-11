@@ -32,11 +32,11 @@
     "formatter": ["prettier"],
     "linter": ["eslint"],
     "logger": ["custom"],
-    "tester": ["jest", "mocha"],
-    "version_control": ["git", "svn"],
+    "tester": ["jest"],
+    "version_control": ["git"],
     "commit_linter": ["commitizen"],
-    "version_control_repo": ["github", "gitlab", "bit_bucket"],
-    "ci": ["github_actions", "travis_ci"],
+    "version_control_repo": ["github"],
+    "ci": ["github_actions"],
     "package_repo": ["npm_js"]
   }
 }

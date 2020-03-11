@@ -7,7 +7,13 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 
 const commander = require('commander')
 const { promptCnfgDefaults, validateInput, display, version } = require('./interface')
-const { getCnfgDefaults, getCnfgOptions, setCnfgDefaults, projInit } = require('./proj_init')
+const {
+  getCnfgDefaults,
+  getCnfgOptions,
+  setCnfgDefaults,
+  getProjectType,
+  projInit,
+} = require('./proj_init')
 
 // -----------------
 // |    PROGRAM    |
@@ -27,6 +33,7 @@ const setCnfg = async template => {
 
 const runInit = async (template, name, options) => {
   let initInstructions = {
+    type: await getProjectType(template),
     dirName: name,
     dirPath: options.dir,
     noInstall: options.notInstall,
@@ -37,7 +44,7 @@ const runInit = async (template, name, options) => {
   if (initInstructions.tools.ci) display.ciSetup(initInstructions.dirName)
 }
 
-const cli = async args => {
+exports.cli = async args => {
   const program = new commander.Command()
 
   program.version(version)
@@ -85,5 +92,3 @@ const cli = async args => {
 
   // program.help()
 }
-
-exports.cli = cli

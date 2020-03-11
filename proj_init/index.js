@@ -1,37 +1,42 @@
 const path = require('path')
 const fs = require('fs')
-const tasks = require('./node/task_runner')
+const nodeTaskRunner = require('./node_templates/task_runner')
+const pythonTaskRunner = require('./python_templates/task_runner')
 
 const CNFG_PATH = './templates.json'
 
-exports.getCnfgDefaults = template => {
-  const cnfgFile = path.join(__dirname, CNFG_PATH)
-  const rawdata = fs.readFileSync(cnfgFile)
-  const parsedCnfg = JSON.parse(rawdata)
+const _getTemplateCnfg = () => {
+  const filePath = path.join(__dirname, CNFG_PATH)
+  const rawdata = fs.readFileSync(filePath)
+  return JSON.parse(rawdata)
+}
 
-  return parsedCnfg.templates[template].tool_defaults
+exports.getCnfgDefaults = template => {
+  const templateCnfg = _getTemplateCnfg()
+  return templateCnfg.templates[template].tool_defaults
 }
 
 exports.getCnfgOptions = () => {
-  const cnfgFile = path.join(__dirname, CNFG_PATH)
-  const rawdata = fs.readFileSync(cnfgFile)
-  const parsedCnfg = JSON.parse(rawdata)
-
-  return parsedCnfg.options
+  const templateCnfg = _getTemplateCnfg()
+  return templateCnfg.options
 }
 
 exports.setCnfgDefaults = (template, selections) => {
-  const cnfgFile = path.join(__dirname, CNFG_PATH)
-  const rawdata = fs.readFileSync(cnfgFile)
-  const parsedCnfg = JSON.parse(rawdata)
+  const templateCnfg = _getTemplateCnfg()
+  templateCnfg.templates[template].tool_defaults = selections
 
-  parsedCnfg.templates[template].tool_defaults = selections
+  const setCnfg = JSON.stringify(templateCnfg, null, 2)
+  const cnfgFilePath = path.join(__dirname, CNFG_PATH)
+  fs.writeFileSync(cnfgFilePath, setCnfg)
+}
 
-  const setCnfg = JSON.stringify(parsedCnfg, null, 2)
-  fs.writeFileSync(cnfgFile, setCnfg)
+exports.getProjectType = template => {
+  const templateCnfg = _getTemplateCnfg()
+  return templateCnfg.templates[template].type
 }
 
 exports.projInit = async (template, instructions) => {
-  await tasks(template, instructions)
+  if (instructions.type === 'node') await nodeTaskRunner(template, instructions)
+  if (instructions.type === 'python') await pythonTaskRunner(template, instructions)
   return { template, instructions }
 }

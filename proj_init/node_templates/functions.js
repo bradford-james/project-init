@@ -9,10 +9,10 @@ const axios = require('axios')
 const access = promisify(fs.access)
 const copy = promisify(ncp)
 
-const TEMPLATE_DIR = './templates'
+const TEMPLATE_DIR = './project_types'
 const STAGING_DIR = '../staging'
 
-const setDirectoryPaths = (template, options) => {
+exports.setDirectoryPaths = (template, options) => {
   const templateDir = path.join(__dirname, TEMPLATE_DIR, template)
   const stagingDir = path.join(__dirname, STAGING_DIR)
   const targetDir =
@@ -23,13 +23,13 @@ const setDirectoryPaths = (template, options) => {
   return { templateDir, stagingDir, targetDir }
 }
 
-const makeDir = async dirName => {
+exports.makeDir = async dirName => {
   await fs.mkdir(dirName, { recursive: true }, err => {
     if (err) console.log(err)
   })
 }
 
-const checkDirectories = async (templateDir, stagingDir, targetDirectory) => {
+exports.checkDirectories = async (templateDir, stagingDir, targetDirectory) => {
   let testDir
   try {
     testDir = 'templateDir'
@@ -47,10 +47,11 @@ const checkDirectories = async (templateDir, stagingDir, targetDirectory) => {
   }
 }
 
-const copyFiles = async (templateDir, targetDirectory) => {
+exports.copyFiles = async (templateDir, targetDirectory) => {
   try {
     await copy(templateDir, targetDirectory, {
       clobber: false,
+      filter: fileName => fileName !== path.join(templateDir, 'init.md'),
     })
   } catch (err) {
     if (err) {
@@ -60,7 +61,7 @@ const copyFiles = async (templateDir, targetDirectory) => {
   }
 }
 
-const initTooling = {
+exports.initTooling = {
   npm: async dirPath => {
     await execa('npm', ['init', '-y'], {
       cwd: dirPath,
@@ -75,7 +76,17 @@ const initTooling = {
       if (err) console.log(err)
     })
   },
-  formatter: () => {},
+  formatter: template => {
+    const filePath = path.join(__dirname, `tooling/formatter/init.md`)
+    const rawdata = fs.readFileSync(filePath)
+    const initBlurb = JSON.parse(rawdata)
+
+    const filePath2 = path.join(__dirname, `project_types/${template}/init.md`)
+    const initMain = fs.readFileSync(filePath2)
+
+    const initFinal = initMain.replace('{formatter}', initBlurb)
+    fs.writeFileSync(filePath2, initFinal)
+  },
   linter: () => {},
   tests: () => {},
   git: async (dirName, dirPath) => {
@@ -95,7 +106,7 @@ const initTooling = {
   commit_linter: () => {},
 }
 
-const addScripts = (dirName, tools) => {
+exports.addScripts = (dirName, tools) => {
   const scripts = {}
   const devDependencies = {}
   const husky = {}
@@ -183,13 +194,13 @@ const addScripts = (dirName, tools) => {
   fs.writeFileSync(pckg, setPckg)
 }
 
-const installDeps = async dirPath => {
+exports.installDeps = async dirPath => {
   await execa('npm', ['i'], {
     cwd: dirPath,
   })
 }
 
-const setRemotes = {
+exports.setRemotes = {
   setGit: async (dirName, dirPath) => {
     const ghUser = process.env.GITHUB_USER
     const ghPassword = process.env.GITHUB_PASSWORD
@@ -210,7 +221,7 @@ const setRemotes = {
       cwd: dirPath,
     })
 
-    initTooling.npm()
+    // initTooling.npm()
 
     await execa('git', ['push', '-u', 'origin', 'master'], {
       cwd: dirPath,
@@ -218,7 +229,7 @@ const setRemotes = {
   },
 }
 
-const finalSetup = {
+exports.finalSetup = {
   verifySetup: async dirPath => {
     await execa('npm', ['test'], {
       cwd: dirPath,
@@ -233,13 +244,3 @@ const finalSetup = {
     })
   },
 }
-
-exports.setDirectoryPaths = setDirectoryPaths
-exports.checkDirectories = checkDirectories
-exports.copyFiles = copyFiles
-exports.makeDir = makeDir
-exports.initTooling = initTooling
-exports.addScripts = addScripts
-exports.setRemotes = setRemotes
-exports.installDeps = installDeps
-exports.finalSetup = finalSetup
