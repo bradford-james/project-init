@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "format": "npm run prettier -- --write",
+    "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|json)\""
+  },
+  "devDependencies": {
+    "prettier": "^1.19.1"
+  }
+}

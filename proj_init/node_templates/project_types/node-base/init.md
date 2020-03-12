@@ -10,6 +10,22 @@ Read the blurbs on the various tools below to get an idea of what is available.
 
 ## Tooling
 
+{common}
+
 {formatter}
 
 {linter}
+
+{logger}
+
+{tester}
+
+{commit linter}
+
+{version control}
+
+{version control repo}
+
+{ci}
+
+{package repo}

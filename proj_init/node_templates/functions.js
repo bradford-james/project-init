@@ -11,6 +11,7 @@ const copy = promisify(ncp)
 
 const TEMPLATE_DIR = './project_types'
 const STAGING_DIR = '../staging'
+const getToolDir = tool => `tooling/${tool}`
 
 exports.setDirectoryPaths = (template, options) => {
   const templateDir = path.join(__dirname, TEMPLATE_DIR, template)
@@ -47,11 +48,16 @@ exports.checkDirectories = async (templateDir, stagingDir, targetDirectory) => {
   }
 }
 
-exports.copyFiles = async (templateDir, targetDirectory) => {
+const copyFiles = async (templateDir, targetDirectory, filterFlag = false) => {
   try {
+    const filter = filterFlag
+      ? fileName =>
+          fileName !== path.join(templateDir, 'init.md') &&
+          fileName !== path.join(templateDir, 'init.json')
+      : true
     await copy(templateDir, targetDirectory, {
       clobber: false,
-      filter: fileName => fileName !== path.join(templateDir, 'init.md'),
+      filter,
     })
   } catch (err) {
     if (err) {
@@ -61,12 +67,63 @@ exports.copyFiles = async (templateDir, targetDirectory) => {
   }
 }
 
+exports.copyFiles = copyFiles
+
+const _writeToInitMD = tool => {
+  const sourcePath = path.join(__dirname, getToolDir(tool), 'init.md')
+  const targetPath = path.join(__dirname, STAGING_DIR, 'init.md')
+  const initSource = fs.readFileSync(sourcePath)
+  const initTarget = fs.readFileSync(targetPath)
+
+  const initWrite = initTarget.toString('utf8').replace(`{${tool}}`, initSource)
+  fs.writeFileSync(targetPath, initWrite)
+}
+
+const _writeToPackageJSON = tool => {
+  const sourcePath = path.join(__dirname, getToolDir(tool), 'init.json')
+  const sourceRawData = fs.readFileSync(sourcePath)
+  const initSource = JSON.parse(sourceRawData)
+
+  const targetPath = path.join(__dirname, STAGING_DIR, 'package.json')
+  const targetRawData = fs.readFileSync(targetPath)
+  const initTarget = JSON.parse(targetRawData)
+
+  Object.keys(initSource).forEach(key => {
+    if (initTarget[key]) {
+      initTarget[key] = { ...initTarget[key], ...initSource[key] }
+    } else {
+      initTarget[key] = initSource[key]
+    }
+  })
+
+  const initWrite = JSON.stringify(initTarget, null, 2)
+  fs.writeFileSync(targetPath, initWrite)
+}
+
+const _runToolInit = tool => {
+  _writeToInitMD(tool)
+  _writeToPackageJSON(tool)
+
+  const sourcePath = path.join(__dirname, getToolDir(tool))
+  const targetPath = path.join(__dirname, STAGING_DIR)
+  copyFiles(sourcePath, targetPath, true)
+}
+
 exports.initTooling = {
   npm: async dirPath => {
     await execa('npm', ['init', '-y'], {
       cwd: dirPath,
     })
+    const packagePath = path.join(__dirname, STAGING_DIR, 'package.JSON')
+    const rawdata = fs.readFileSync(packagePath)
+    const packageJSON = JSON.parse(rawdata)
+
+    packageJSON.scripts = {}
+
+    const packageWrite = JSON.stringify(packageJSON, null, 2)
+    fs.writeFileSync(packagePath, packageWrite)
   },
+  common: () => {},
   license: async dirPath => {
     const licenseType = await execa('npm', ['get', 'init.license'])
     const name = await execa('npm', ['get', 'init.author.name'])
@@ -76,18 +133,13 @@ exports.initTooling = {
       if (err) console.log(err)
     })
   },
-  formatter: template => {
-    const filePath = path.join(__dirname, `tooling/formatter/init.md`)
-    const rawdata = fs.readFileSync(filePath)
-    const initBlurb = JSON.parse(rawdata)
-
-    const filePath2 = path.join(__dirname, `project_types/${template}/init.md`)
-    const initMain = fs.readFileSync(filePath2)
-
-    const initFinal = initMain.replace('{formatter}', initBlurb)
-    fs.writeFileSync(filePath2, initFinal)
+  formatter: () => {
+    _runToolInit('formatter')
   },
-  linter: () => {},
+  linter: () => {
+    _runToolInit('linter')
+  },
+  logger: () => {},
   tests: () => {},
   git: async (dirName, dirPath) => {
     await execa('git', ['init'], {
@@ -114,22 +166,6 @@ exports.addScripts = (dirName, tools) => {
 
   scripts.start = 'node bin/project-init.js'
   scripts.dev = 'env NODE_ENV=dev node bin/project-init.js'
-
-  if (tools.formatter) {
-    scripts.format = 'npm run prettier -- --write'
-    scripts.prettier = 'prettier --ignore-path .gitignore --write "**/*.+(js|json)"'
-    devDependencies.prettier = '^1.19.1'
-  }
-
-  if (tools.linter) {
-    scripts.lint = 'eslint .'
-    scripts['lint:fix'] = 'eslint . --fix'
-    devDependencies.eslint = '^6.8.0'
-    devDependencies['eslint-config-airbnb-base'] = '^14.0.0'
-    devDependencies['eslint-config-prettier'] = '^6.10.0'
-    devDependencies['eslint-plugin-import'] = '^2.20.1'
-    devDependencies['eslint-plugin-prettier'] = '^3.1.2'
-  }
 
   if (tools.tester) {
     scripts.test = 'jest'
