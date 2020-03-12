@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/bradford-james/proj-init/compare/v1.7.0...v1.7.1) (2020-03-12)
+
+
+### Bug Fixes
+
+* **bin:** fixed bin compatible with node-base ([167fc49](https://github.com/bradford-james/proj-init/commit/167fc4906fe80c054addb8ef19ff67209752b0be))
+
 # [1.7.0](https://github.com/bradford-james/proj-init/compare/v1.6.0...v1.7.0) (2020-03-12)
 
 
