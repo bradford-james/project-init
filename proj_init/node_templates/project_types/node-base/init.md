@@ -2,7 +2,7 @@
 
 ## Explainer
 
-You've set up a template for creating a local Node project.  The idea here is to quickly prototype a tool that may later be expanded upon or made available through a public repo.
+You've set up a template for creating a local Node project. The idea here is to quickly prototype a tool that may later be expanded upon or made available through a public repo.
 
 You'll find set up a variety of developer tools to ensure clean, consistent, testable code, as well as version control.
 
@@ -20,12 +20,12 @@ Read the blurbs on the various tools below to get an idea of what is available.
 
 {tester}
 
-{commit linter}
+{commit_linter}
 
-{version control}
+{version_control}
 
-{version control repo}
+{version_control_repo}
 
 {ci}
 
-{package repo}
+{package_repo}

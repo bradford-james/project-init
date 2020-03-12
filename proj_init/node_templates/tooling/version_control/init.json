@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "commit": "npm run format && npm run lint && npm run test && git add . && git cz"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "",
+      "prepare-commit-msg": "",
+      "commit-msg": "",
+      "post-commit": "",
+      "pre-push": ""
+    }
+  }
+}

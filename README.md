@@ -37,11 +37,14 @@ CLI for initializing project workspace with tooling _(formatting, linting, versi
 
 Two packages are currently available
 
-* **node-package:** linter, formatter, tester, version control, commit lint, version control repo, ci, package repo
+- **node-package:** linter, formatter, tester, version control, commit lint, version control repo, ci, package repo
+
 ```
 => proj-init node-package [project name]
 ```
-* **base:** linter, formatter, tester, version control, commit lint (for local projects)
+
+- **node-base:** linter, formatter, tester, version control, commit lint (for local projects)
+
 ```
 => proj-init base [project name]
 ```
@@ -49,15 +52,18 @@ Two packages are currently available
 ## Usage
 
 Some other available options:
+
 ```
 => proj-init node-package -c
 ```
+
 This will show current default configuration for this template type
+
 ```
 => proj-init node-package -s
 ```
-This will allow you to set configuration options from currently available tools for each tool type
 
+This will allow you to set configuration options from currently available tools for each tool type
 
 ## Documentation
 

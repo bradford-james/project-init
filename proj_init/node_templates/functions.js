@@ -13,6 +13,9 @@ const TEMPLATE_DIR = './project_types'
 const STAGING_DIR = '../staging'
 const getToolDir = tool => `tooling/${tool}`
 
+const GIT_CREATE_REPO_ENDPOINT = 'https://api.github.com/user/repos'
+const GIT_REMOTE_ENDPOINT = (ghUser, dirName) => `https://github.com/${ghUser}/${dirName}.git`
+
 exports.setDirectoryPaths = (template, options) => {
   const templateDir = path.join(__dirname, TEMPLATE_DIR, template)
   const stagingDir = path.join(__dirname, STAGING_DIR)
@@ -66,38 +69,49 @@ const copyFiles = async (templateDir, targetDirectory, filterFlag = false) => {
     }
   }
 }
-
 exports.copyFiles = copyFiles
 
-const _writeToInitMD = tool => {
+const _writeToInitMD = async tool => {
   const sourcePath = path.join(__dirname, getToolDir(tool), 'init.md')
-  const targetPath = path.join(__dirname, STAGING_DIR, 'init.md')
-  const initSource = fs.readFileSync(sourcePath)
-  const initTarget = fs.readFileSync(targetPath)
+  try {
+    await access(sourcePath, fs.constants.R_OK)
+    const targetPath = path.join(__dirname, STAGING_DIR, 'init.md')
+    const initSource = fs.readFileSync(sourcePath)
+    const initTarget = fs.readFileSync(targetPath)
 
-  const initWrite = initTarget.toString('utf8').replace(`{${tool}}`, initSource)
-  fs.writeFileSync(targetPath, initWrite)
+    const initWrite = initTarget.toString('utf8').replace(`{${tool}}`, initSource)
+    fs.writeFileSync(targetPath, initWrite)
+    return true
+  } catch (err) {
+    return true
+  }
 }
 
-const _writeToPackageJSON = tool => {
+const _writeToPackageJSON = async tool => {
   const sourcePath = path.join(__dirname, getToolDir(tool), 'init.json')
-  const sourceRawData = fs.readFileSync(sourcePath)
-  const initSource = JSON.parse(sourceRawData)
+  try {
+    await access(sourcePath, fs.constants.R_OK)
+    const sourceRawData = fs.readFileSync(sourcePath)
+    const initSource = JSON.parse(sourceRawData)
 
-  const targetPath = path.join(__dirname, STAGING_DIR, 'package.json')
-  const targetRawData = fs.readFileSync(targetPath)
-  const initTarget = JSON.parse(targetRawData)
+    const targetPath = path.join(__dirname, STAGING_DIR, 'package.json')
+    const targetRawData = fs.readFileSync(targetPath)
+    const initTarget = JSON.parse(targetRawData)
 
-  Object.keys(initSource).forEach(key => {
-    if (initTarget[key]) {
-      initTarget[key] = { ...initTarget[key], ...initSource[key] }
-    } else {
-      initTarget[key] = initSource[key]
-    }
-  })
+    Object.keys(initSource).forEach(key => {
+      if (initTarget[key]) {
+        initTarget[key] = { ...initTarget[key], ...initSource[key] }
+      } else {
+        initTarget[key] = initSource[key]
+      }
+    })
 
-  const initWrite = JSON.stringify(initTarget, null, 2)
-  fs.writeFileSync(targetPath, initWrite)
+    const initWrite = JSON.stringify(initTarget, null, 2)
+    fs.writeFileSync(targetPath, initWrite)
+    return true
+  } catch (err) {
+    return true
+  }
 }
 
 const _runToolInit = tool => {
@@ -109,141 +123,91 @@ const _runToolInit = tool => {
   copyFiles(sourcePath, targetPath, true)
 }
 
+const _setupPackageJson = dirName => {
+  const packagePath = path.join(__dirname, STAGING_DIR, 'package.JSON')
+  const rawdata = fs.readFileSync(packagePath)
+  const packageJSON = JSON.parse(rawdata)
+
+  packageJSON.scripts = {}
+  packageJSON.name = dirName
+  packageJSON.bin = {
+    [dirName]: `bin/${dirName}.js`,
+  }
+  packageJSON.description = './README.md'
+  packageJSON.dependencies = {}
+
+  const packageWrite = JSON.stringify(packageJSON, null, 2)
+  fs.writeFileSync(packagePath, packageWrite)
+}
+
+const _setupLicense = async dirPath => {
+  const licenseType = await execa('npm', ['get', 'init.license'])
+  const name = await execa('npm', ['get', 'init.author.name'])
+  const license = await execa('npx', ['license', licenseType.all, '-o', name.all])
+  const filePath = path.join(dirPath, 'LICENSE')
+  fs.writeFile(filePath, license.all, err => {
+    if (err) console.log(err)
+  })
+}
+
+const _setupGit = async dirPath => {
+  await execa('git', ['init'], {
+    cwd: dirPath,
+  })
+  await execa('npx', ['gitignore', 'node'], {
+    cwd: dirPath,
+  })
+  await execa('git', ['add', '-A'], {
+    cwd: dirPath,
+  })
+  await execa('git', ['commit', '-m', 'Initial Commit'], {
+    cwd: dirPath,
+  })
+}
+
 exports.initTooling = {
-  npm: async dirPath => {
+  npm: async (dirName, dirPath) => {
     await execa('npm', ['init', '-y'], {
       cwd: dirPath,
     })
-    const packagePath = path.join(__dirname, STAGING_DIR, 'package.JSON')
-    const rawdata = fs.readFileSync(packagePath)
-    const packageJSON = JSON.parse(rawdata)
 
-    packageJSON.scripts = {}
+    const oldPath = path.join(dirPath, '/bin/bin.js')
+    const newPath = path.join(dirPath, `/bin/${dirName}.js`)
+    fs.renameSync(oldPath, newPath)
 
-    const packageWrite = JSON.stringify(packageJSON, null, 2)
-    fs.writeFileSync(packagePath, packageWrite)
+    _setupPackageJson(dirName)
   },
-  common: () => {},
-  license: async dirPath => {
-    const licenseType = await execa('npm', ['get', 'init.license'])
-    const name = await execa('npm', ['get', 'init.author.name'])
-    const license = await execa('npx', ['license', licenseType.all, '-o', name.all])
-    const filePath = path.join(dirPath, 'LICENSE')
-    fs.writeFile(filePath, license.all, err => {
-      if (err) console.log(err)
-    })
+  common: async dirPath => {
+    _runToolInit('common')
+    await _setupLicense(dirPath)
   },
-  formatter: () => {
-    _runToolInit('formatter')
+  formatter: () => _runToolInit('formatter'),
+  linter: () => _runToolInit('linter'),
+  logger: () => _runToolInit('logger'),
+  tests: () => _runToolInit('tester'),
+  version_control: async dirPath => {
+    _runToolInit('version_control')
+    await _setupGit(dirPath)
   },
-  linter: () => {
-    _runToolInit('linter')
-  },
-  logger: () => {},
-  tests: () => {},
-  git: async (dirName, dirPath) => {
-    await execa('git', ['init'], {
-      cwd: dirPath,
-    })
-    await execa('npx', ['gitignore', 'node'], {
-      cwd: dirPath,
-    })
-    await execa('git', ['add', '-A'], {
-      cwd: dirPath,
-    })
-    await execa('git', ['commit', '-m', 'Initial Commit'], {
-      cwd: dirPath,
-    })
-  },
-  commit_linter: () => {},
-}
-
-exports.addScripts = (dirName, tools) => {
-  const scripts = {}
-  const devDependencies = {}
-  const husky = {}
-  const config = {}
-
-  scripts.start = 'node bin/project-init.js'
-  scripts.dev = 'env NODE_ENV=dev node bin/project-init.js'
-
-  if (tools.tester) {
-    scripts.test = 'jest'
-    scripts['test:coverage'] = 'jest --coverage'
-    scripts['test:watch'] = 'jest --watch'
-    scripts['test:debug'] =
-      'node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand  --watch'
-  }
-
-  if (tools.version_control) {
-    scripts.commit = 'npm run format && npm run lint && npm run test && git add . && git cz'
-    husky.hooks = {
-      'pre-commit': '',
-      'prepare-commit-msg': '',
-      'commit-msg': '',
-      'post-commit': '',
-      'pre-push': '',
-    }
-  }
-
-  if (tools.commit_linter) {
-    devDependencies.husky = '^4.2.1'
-    devDependencies['@commitlint/cli'] = '^8.3.5'
-    devDependencies['@commitlint/config-conventional'] = '^8.3.4'
-    devDependencies['@commitlint/prompt'] = '^8.3.5'
-    husky.hooks['commit-msg'] = 'commitlint -E HUSKY_GIT_PARAMS'
-  }
-
-  if (tools.version_control_repo) {
-    scripts.release = 'git push --follow-tags'
-  }
-
-  if (tools.ci) {
-    scripts['semantic-release'] = 'semantic-release'
-    devDependencies['cz-conventional-changelog'] = '^3.1.0'
-    devDependencies['semantic-release'] = '^17.0.2'
-    devDependencies['@semantic-release/changelog'] = '^5.0.0'
-    devDependencies['@semantic-release/git'] = '^9.0.0'
-    devDependencies['@semantic-release/github'] = '^7.0.3'
-    devDependencies['@semantic-release/npm'] = '^7.0.2'
-    config.commitizen = {
-      path: './node_modules/cz-conventional-changelog',
-    }
-  }
-
-  const pckg = path.join(__dirname, STAGING_DIR, 'package.json')
-  const rawdata = fs.readFileSync(pckg)
-  const parsedPckg = JSON.parse(rawdata)
-
-  parsedPckg.name = dirName
-  parsedPckg.bin = {
-    [dirName]: `bin/${dirName}.js`,
-  }
-  parsedPckg.description = './README.md'
-  parsedPckg.scripts = scripts
-  parsedPckg.dependencies = {}
-  parsedPckg.devDependencies = devDependencies
-  parsedPckg.husky = husky
-  parsedPckg.config = config
-
-  const setPckg = JSON.stringify(parsedPckg, null, 2)
-  fs.writeFileSync(pckg, setPckg)
+  commit_linter: () => _runToolInit('commit_linter'),
+  version_control_repo: () => _runToolInit('version_control_repo'),
+  ci: () => _runToolInit('ci'),
 }
 
 exports.installDeps = async dirPath => {
-  await execa('npm', ['i'], {
+  await execa('npm', ['install'], {
     cwd: dirPath,
   })
 }
 
 exports.setRemotes = {
-  setGit: async (dirName, dirPath) => {
+  git: async (dirName, dirPath) => {
     const ghUser = process.env.GITHUB_USER
     const ghPassword = process.env.GITHUB_PASSWORD
 
     await axios
       .post(
-        'https://api.github.com/user/repos',
+        GIT_CREATE_REPO_ENDPOINT,
         { name: dirName },
         { auth: { username: ghUser, password: ghPassword } }
       )
@@ -251,14 +215,14 @@ exports.setRemotes = {
         console.log(error.response.data)
       })
 
-    const gitRemoteEndPoint = `https://github.com/${ghUser}/${dirName}.git`
+    const gitRemoteEndPoint = GIT_REMOTE_ENDPOINT(ghUser, dirName)
 
     await execa('git', ['remote', 'add', 'origin', gitRemoteEndPoint], {
       cwd: dirPath,
     })
-
-    // initTooling.npm()
-
+    await execa('npm', ['init', '-y'], {
+      cwd: dirPath,
+    })
     await execa('git', ['push', '-u', 'origin', 'master'], {
       cwd: dirPath,
     })
@@ -266,10 +230,13 @@ exports.setRemotes = {
 }
 
 exports.finalSetup = {
-  verifySetup: async dirPath => {
-    await execa('npm', ['test'], {
-      cwd: dirPath,
-    })
+  cleanInitMD: targetDir => {
+    const targetPath = path.join(targetDir, 'init.md')
+    const initTarget = fs.readFileSync(targetPath)
+
+    const regex = /{\w+}/g
+    const initWrite = initTarget.toString('utf8').replace(regex, '')
+    fs.writeFileSync(targetPath, initWrite)
   },
   gitCommit: async dirPath => {
     await execa('git', ['add', '-A'], {

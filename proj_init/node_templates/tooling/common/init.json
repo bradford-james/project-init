@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "start": "node bin/project-init.js",
+    "dev": "env NODE_ENV=dev node bin/project-init.js"
+  }
+}
