@@ -46,7 +46,7 @@ Two packages are currently available
 - **node-base:** linter, formatter, tester, version control, commit lint (for local projects)
 
 ```
-=> proj-init base [project name]
+=> proj-init node-base [project name]
 ```
 
 ## Usage
