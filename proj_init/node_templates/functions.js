@@ -165,15 +165,25 @@ const _setupGit = async dirPath => {
   })
 }
 
+const _renameFile = async (dirName, dirPath) => {
+  const oldPath = path.join(dirPath, '/bin/bin.js')
+  const newPath = path.join(dirPath, `/bin/${dirName}.js`)
+  try {
+    await access(oldPath, fs.constants.R_OK)
+    fs.renameSync(oldPath, newPath)
+    return true
+  } catch (err) {
+    return true
+  }
+}
+
 exports.initTooling = {
   npm: async (dirName, dirPath) => {
     await execa('npm', ['init', '-y'], {
       cwd: dirPath,
     })
 
-    const oldPath = path.join(dirPath, '/bin/bin.js')
-    const newPath = path.join(dirPath, `/bin/${dirName}.js`)
-    fs.renameSync(oldPath, newPath)
+    await _renameFile(dirName, dirPath)
 
     _setupPackageJson(dirName)
   },
