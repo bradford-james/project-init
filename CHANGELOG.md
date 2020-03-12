@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/bradford-james/proj-init/compare/v1.6.0...v1.7.0) (2020-03-12)
+
+
+### Features
+
+* **init_file:** each project will output an init file ([ad5e88c](https://github.com/bradford-james/proj-init/commit/ad5e88c24b913fc7040f74f907e46a07b86d9388))
+
 # [1.6.0](https://github.com/bradford-james/proj-init/compare/v1.5.1...v1.6.0) (2020-03-10)
 
 
